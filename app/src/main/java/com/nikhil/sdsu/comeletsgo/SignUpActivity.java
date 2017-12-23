@@ -36,6 +36,7 @@ public class SignUpActivity extends AppCompatActivity {
         password = findViewById(R.id.signup_password);
         submit = findViewById(R.id.sign_up_submit);
         reset = findViewById(R.id.sign_up_reset_button);
+        auth = FirebaseAuth.getInstance();
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -51,6 +52,7 @@ public class SignUpActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (!task.isSuccessful()) {
+                                        Log.d("rew","Exception: "+task.getException());
                                         Toast.makeText(SignUpActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
                                         emailId.setError("Invalid Email ID");
                                     } else {

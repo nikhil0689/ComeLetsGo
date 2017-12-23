@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "489781283689",
+    "firebase_url": "https://comeletsgo-19e3b.firebaseio.com",
+    "project_id": "comeletsgo-19e3b",
+    "storage_bucket": "comeletsgo-19e3b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489781283689:android:5f4eaaa15f1cbfc2",
+        "android_client_info": {
+          "package_name": "com.nikhil.sdsu.comeletsgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "489781283689-uj42bpjnjkvtohi5m2kf010e4rdn97d3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nikhil.sdsu.comeletsgo",
+            "certificate_hash": "176b9dc2c6f4f885e23ff523e2523331c30ee6e0"
+          }
+        },
+        {
+          "client_id": "489781283689-4ij0lsnj943g1e414puvqm4dtn6dnmqf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nikhil.sdsu.comeletsgo",
+            "certificate_hash": "f0d5c31973943e3b9a0369a8c5b3cb5623eb3610"
+          }
+        },
+        {
+          "client_id": "489781283689-aqsep5isabnkbcn36jndccafgh17rugk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nikhil.sdsu.comeletsgo",
+            "certificate_hash": "cc11479c6e718c9c0dff54667978d1ef3ca31ad7"
+          }
+        },
+        {
+          "client_id": "489781283689-a0of47l2kbr4gr8prtsvn7j4o0unj98c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBf-F_NJZXxyhECTJ8e4JgggnEJmy49RJY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "489781283689-a0of47l2kbr4gr8prtsvn7j4o0unj98c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

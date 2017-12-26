@@ -1,4 +1,4 @@
-package com.nikhil.sdsu.comeletsgo;
+package com.nikhil.sdsu.comeletsgo.Pojo;
 
 /**
  * Created by Nikhil on 12/25/2017.

@@ -1,4 +1,4 @@
-package com.nikhil.sdsu.comeletsgo;
+package com.nikhil.sdsu.comeletsgo.Helpers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 
 import java.util.ArrayList;
 import java.util.List;

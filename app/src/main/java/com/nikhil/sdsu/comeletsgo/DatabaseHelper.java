@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
  */
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    private FirebaseAuth auth = FirebaseAuth.getInstance();
     public static final String DATABASE_SIGN_UP_DETAILS = "sign_up_database.db";
     public static final String TABLE_NAME_SIGN_UP_DETAILS = "sign_up_table";
     public static final String CONTACT = "contact";
@@ -34,7 +37,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ""+CAR_COLOR+" TEXT," +
             ""+CAR_LICENSE+" TEXT," +
             ""+ADDRESS+" TEXT)";
-    public static final String GET_USER_DATA = "SELECT * FROM "+TABLE_NAME_SIGN_UP_DETAILS;
 
     public DatabaseHelper(Context context) {
         super(context,DATABASE_SIGN_UP_DETAILS,null,1);
@@ -66,6 +68,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(CAR_LICENSE,signUpDetailsPOJO.getCarLicence());
         contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
         try{
+            Log.d("rew","In Insert user method");
             sqLiteDatabase.insertOrThrow(TABLE_NAME_SIGN_UP_DETAILS,null,contentValues);
         }catch (SQLiteConstraintException e){
             Log.d("rew","Exception: insert Failure: "+e);
@@ -74,19 +77,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public List<SignUpDetailsPOJO> getUserData(){
-        List<SignUpDetailsPOJO> list = new ArrayList<>();
+    public List<SignUpDetailsPOJO> getUserData(String sql){
+        Log.d("rew","In Get User Data list Method");
+        ArrayList<SignUpDetailsPOJO> list = new ArrayList<>();
         SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery(GET_USER_DATA,null);
+        Cursor cursor = sqLiteDatabase.rawQuery(sql,null);
+        cursor.moveToFirst();
         SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
         signUpDetailsPOJO.setContact(cursor.getString(0));
-        signUpDetailsPOJO.setName(cursor.getString(1));
-        signUpDetailsPOJO.setEmailId(cursor.getString(2));
+        signUpDetailsPOJO.setEmailId(cursor.getString(1));
+        signUpDetailsPOJO.setName(cursor.getString(2));
         signUpDetailsPOJO.setCarName(cursor.getString(3));
         signUpDetailsPOJO.setCarColor(cursor.getString(4));
         signUpDetailsPOJO.setCarLicence(cursor.getString(5));
         signUpDetailsPOJO.setAddress(cursor.getString(6));
         list.add(signUpDetailsPOJO);
+        Log.d("rew","List value of object: "+list.get(0).getContact());
+        sqLiteDatabase.close();
         return list;
     }
 }

@@ -14,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,21 +23,15 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     DatabaseHelper databaseHelper = new DatabaseHelper(this);
+    private FirebaseAuth auth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        auth = FirebaseAuth.getInstance();
+        String email = auth.getCurrentUser().getEmail().toString();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -45,10 +41,10 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
-        userDetailsList = databaseHelper.getUserData();
-        String con = userDetailsList.get(0).toString();
-        Log.d("rew","contact: "+con);
+        Log.d("rew","inside main activity oncreate");
+        String sql = "SELECT * FROM sign_up_table WHERE emailId="+"'"+email+"'";
+        userDetailsList = databaseHelper.getUserData(sql);
+        Log.d("rew","contact: "+userDetailsList.get(0).getContact());
     }
 
     @Override

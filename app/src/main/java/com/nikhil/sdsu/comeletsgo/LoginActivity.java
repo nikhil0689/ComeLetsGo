@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         });
         firebaseAuth = FirebaseAuth.getInstance();
         if(firebaseAuth.getCurrentUser() != null){
+            Log.d("rew","User name: "+firebaseAuth.getCurrentUser().getEmail().toString());
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }

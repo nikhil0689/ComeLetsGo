@@ -1,0 +1,92 @@
+package com.nikhil.sdsu.comeletsgo;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Nikhil on 12/25/2017.
+ */
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+    public static final String DATABASE_SIGN_UP_DETAILS = "sign_up_database.db";
+    public static final String TABLE_NAME_SIGN_UP_DETAILS = "sign_up_table";
+    public static final String CONTACT = "contact";
+    public static final String EMAIL = "emailId";
+    public static final String NAME = "name";
+    public static final String CAR_NAME = "carName";
+    public static final String CAR_COLOR = "carColor";
+    public static final String CAR_LICENSE = "carLicense";
+    public static final String ADDRESS = "address";
+    Context context;
+    public static final String CREATE_SIGN_UP_TABLE = "CREATE TABLE IF NOT EXISTS "+TABLE_NAME_SIGN_UP_DETAILS+" " +
+            "("+CONTACT+" TEXT PRIMARY KEY," +
+            ""+EMAIL+" TEXT," +
+            ""+NAME+" TEXT," +
+            ""+CAR_NAME+" TEXT," +
+            ""+CAR_COLOR+" TEXT," +
+            ""+CAR_LICENSE+" TEXT," +
+            ""+ADDRESS+" TEXT)";
+    public static final String GET_USER_DATA = "SELECT * FROM "+TABLE_NAME_SIGN_UP_DETAILS;
+
+    public DatabaseHelper(Context context) {
+        super(context,DATABASE_SIGN_UP_DETAILS,null,1);
+        Log.d("rew","in database helper constructor");
+        this.context = context;
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        Log.d("rew","in database helper on create");
+        sqLiteDatabase.execSQL(CREATE_SIGN_UP_TABLE);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+        Log.d("rew","in database helper upgrade");
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS "+TABLE_NAME_SIGN_UP_DETAILS);
+        onCreate(sqLiteDatabase);
+    }
+
+    public boolean insertUser(SignUpDetailsPOJO signUpDetailsPOJO){
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONTACT,signUpDetailsPOJO.getContact());
+        contentValues.put(NAME,signUpDetailsPOJO.getName());
+        contentValues.put(EMAIL,signUpDetailsPOJO.getEmailId());
+        contentValues.put(CAR_NAME,signUpDetailsPOJO.getCarName());
+        contentValues.put(CAR_COLOR,signUpDetailsPOJO.getCarColor());
+        contentValues.put(CAR_LICENSE,signUpDetailsPOJO.getCarLicence());
+        contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
+        try{
+            sqLiteDatabase.insertOrThrow(TABLE_NAME_SIGN_UP_DETAILS,null,contentValues);
+        }catch (SQLiteConstraintException e){
+            Log.d("rew","Exception: insert Failure: "+e);
+            return false;
+        }
+        return true;
+    }
+
+    public List<SignUpDetailsPOJO> getUserData(){
+        List<SignUpDetailsPOJO> list = new ArrayList<>();
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor cursor = sqLiteDatabase.rawQuery(GET_USER_DATA,null);
+        SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
+        signUpDetailsPOJO.setContact(cursor.getString(0));
+        signUpDetailsPOJO.setName(cursor.getString(1));
+        signUpDetailsPOJO.setEmailId(cursor.getString(2));
+        signUpDetailsPOJO.setCarName(cursor.getString(3));
+        signUpDetailsPOJO.setCarColor(cursor.getString(4));
+        signUpDetailsPOJO.setCarLicence(cursor.getString(5));
+        signUpDetailsPOJO.setAddress(cursor.getString(6));
+        list.add(signUpDetailsPOJO);
+        return list;
+    }
+}

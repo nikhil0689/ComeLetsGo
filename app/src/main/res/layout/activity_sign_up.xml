@@ -85,6 +85,66 @@
                 android:padding="16dp"
                 android:textColor="#000" />
 
+        <EditText
+            android:id="@+id/signup_car_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#f0f0f4"
+            android:drawablePadding="16dp"
+            android:ems="10"
+            android:hint="Car Make"
+            android:inputType="textCapWords"
+            android:padding="16dp"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/signup_car_color"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#f0f0f4"
+            android:drawablePadding="16dp"
+            android:ems="10"
+            android:hint="Car Color"
+            android:inputType="textCapWords"
+            android:padding="16dp"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/signup_car_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#f0f0f4"
+            android:drawablePadding="16dp"
+            android:ems="10"
+            android:hint="Car License"
+            android:inputType="textCapWords"
+            android:padding="16dp"
+            android:textColor="#000" />
+
+        <EditText
+            android:id="@+id/signup_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#f0f0f4"
+            android:drawablePadding="16dp"
+            android:ems="10"
+            android:hint="Home Address"
+            android:inputType="textCapWords"
+            android:padding="16dp"
+            android:textColor="#000" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

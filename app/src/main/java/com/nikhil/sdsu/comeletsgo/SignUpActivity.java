@@ -19,10 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
 public class SignUpActivity extends AppCompatActivity {
-    private EditText name;
-    private EditText contact;
-    private EditText emailId;
-    private EditText password;
+    private EditText name,contact,emailId,password,carName,carColor,carLisence,homeAddress;
     private Button submit,reset;
     private FirebaseAuth auth;
 
@@ -34,6 +31,10 @@ public class SignUpActivity extends AppCompatActivity {
         contact = findViewById(R.id.sign_up_contact);
         emailId = findViewById(R.id.sign_up_email);
         password = findViewById(R.id.signup_password);
+        carName = findViewById(R.id.signup_car_name);
+        carColor = findViewById(R.id.signup_car_color);
+        carLisence = findViewById(R.id.signup_car_number);
+        homeAddress = findViewById(R.id.signup_address);
         submit = findViewById(R.id.sign_up_submit);
         reset = findViewById(R.id.sign_up_reset_button);
         auth = FirebaseAuth.getInstance();
@@ -46,6 +47,14 @@ public class SignUpActivity extends AppCompatActivity {
                 String phno = contact.getText().toString().trim();
                 final String displayName = phno.concat("-").concat(dispName);
                 if(validInput()){
+                    final SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
+                    signUpDetailsPOJO.setName(dispName);
+                    signUpDetailsPOJO.setCarName(carName.getText().toString().trim());
+                    signUpDetailsPOJO.setCarColor(carColor.getText().toString().trim());
+                    signUpDetailsPOJO.setCarLicence(carLisence.getText().toString().trim());
+                    signUpDetailsPOJO.setEmailId(email);
+                    signUpDetailsPOJO.setContact(phno);
+                    signUpDetailsPOJO.setAddress(homeAddress.getText().toString().trim());
                     Log.d("rew","user data: "+email+" "+pass+" "+displayName);
                     auth.createUserWithEmailAndPassword(email,pass)
                             .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
@@ -62,19 +71,27 @@ public class SignUpActivity extends AppCompatActivity {
                                                 .setDisplayName(displayName)
                                                 .build();
                                         try {
-                                            user.updateProfile(profileUpdates)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                Log.d("rew", "User profile updated.");
-                                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                                                finish();
+                                            DatabaseHelper databaseHelper = new DatabaseHelper(SignUpActivity.this);
+                                            boolean dbUpdate = databaseHelper.insertUser(signUpDetailsPOJO);
+                                            if(dbUpdate){
+                                                user.updateProfile(profileUpdates)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    Log.d("rew", "User profile updated.");
+                                                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                    finish();
+                                                                }else{
+                                                                    Log.d("rew","user profile update failed");
+                                                                }
                                                             }
-                                                        }
-                                                    });
-                                        } catch (NullPointerException e) {
-                                            Log.d("rew", "failed");
+                                                        });
+                                            }else{
+                                                Log.d("rew","db update failed");
+                                            }
+                                        } catch (Exception e) {
+                                            Log.d("rew", "failed: "+e);
                                         }
                                     }
                                 }
@@ -125,6 +142,23 @@ public class SignUpActivity extends AppCompatActivity {
             contact.setError("Enter Phone No.");
             dataValid = false;
         }
+        if(TextUtils.isEmpty(carName.getText().toString())){
+            contact.setError("Enter Car Name");
+            dataValid = false;
+        }
+        if(TextUtils.isEmpty(carLisence.getText().toString())){
+            contact.setError("Enter Phone No.");
+            dataValid = false;
+        }
+        if(TextUtils.isEmpty(carColor.getText().toString())){
+            contact.setError("Enter Phone No.");
+            dataValid = false;
+        }
+        if(TextUtils.isEmpty(homeAddress.getText().toString())){
+            contact.setError("Enter Phone No.");
+            dataValid = false;
+        }
+
         return dataValid;
     }
 

@@ -1,14 +1,28 @@
 package com.nikhil.sdsu.comeletsgo.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
+import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -23,11 +37,14 @@ public class MyProfileFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private TextView name,emailId;
+    private EditText contact,car,color,license;
+    private Button back,update;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private FirebaseAuth auth;
+    List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     private OnFragmentInteractionListener mListener;
 
     public MyProfileFragment() {
@@ -66,6 +83,51 @@ public class MyProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_my_profile, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        final DatabaseHelper databaseHelper = new DatabaseHelper(this.getContext());
+        auth = FirebaseAuth.getInstance();
+        name = view.findViewById(R.id.my_profile_name);
+        contact = view.findViewById(R.id.my_profile_contact);
+        emailId = view.findViewById(R.id.my_profile_email);
+        car = view.findViewById(R.id.my_profile_car);
+        color = view.findViewById(R.id.my_profile_car_color);
+        license = view.findViewById(R.id.my_profile_license);
+        update = view.findViewById(R.id.my_profile_update);
+        final String email = auth.getCurrentUser().getEmail().toString();
+        String sql = "SELECT * FROM sign_up_table WHERE emailId="+"'"+email+"'";
+        userDetailsList = databaseHelper.getUserData(sql);
+        Log.d("rew","contact: "+userDetailsList.get(0).getContact());
+        name.setText(userDetailsList.get(0).getName());
+        emailId.setText(email);
+        contact.setText(userDetailsList.get(0).getContact());
+        car.setText(userDetailsList.get(0).getCarName());
+        color.setText(userDetailsList.get(0).getCarColor());
+        license.setText(userDetailsList.get(0).getCarLicence());
+        update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("rew","back button clicked");
+                SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
+                signUpDetailsPOJO.setContact(contact.getText().toString().trim());
+                signUpDetailsPOJO.setCarName(car.getText().toString().trim());
+                signUpDetailsPOJO.setCarColor(color.getText().toString().trim());
+                signUpDetailsPOJO.setCarLicence(license.getText().toString().trim());
+                signUpDetailsPOJO.setEmailId(email);
+                boolean updated = databaseHelper.updateProfileData(signUpDetailsPOJO);
+                if(updated){
+                    Log.d("rew","Data updated");
+                    Intent intent = getActivity().getIntent();
+                    getActivity().finish();
+                    startActivity(intent);
+                }else{
+                    Log.d("rew","Data Update failed");
+                }
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event

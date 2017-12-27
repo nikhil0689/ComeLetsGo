@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     private View header;
     private Toolbar toolbar;
     private FloatingActionButton fab;
+    private String[] activityTitles;
     // index to identify current nav menu item
     public static int navItemIndex = 0;
     // tags used to attach the fragments
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         auth = FirebaseAuth.getInstance();
+        activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
         String email = auth.getCurrentUser().getEmail().toString();
         String name = auth.getCurrentUser().getDisplayName().split("-")[1];
         toolbar = findViewById(R.id.toolbar);
@@ -74,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         toggle.syncState();
         fab = findViewById(R.id.fab);
         navigationView = findViewById(R.id.nav_view);
-        //navigationView.setNavigationItemSelectedListener(this);
         header = navigationView.getHeaderView(0);
         navigation_header_caption = header.findViewById(R.id.nav_header_small_text);
         navigation_header_caption.setText(name);
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     private void loadHomeFragment() {
         // selecting appropriate nav menu item
         selectNavMenu();
+        getSupportActionBar().setTitle(activityTitles[navItemIndex]);
         // if user select the current navigation menu again, don't do anything
         // just close the navigation drawer
         if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) != null) {
@@ -247,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     public void onFragmentInteraction(Uri uri){
 
     }
+
     private void toggleFab() {
         if (navItemIndex == 0)
             fab.show();

@@ -15,8 +15,7 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:paddingTop="16dp"
-        android:fitsSystemWindows="true"
-        tools:context="layout.FormFragment">
+        android:fitsSystemWindows="true">
 
         <TextView
             android:id="@+id/sign_up_textView"

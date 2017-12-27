@@ -8,5 +8,10 @@
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-
+    <string-array name="nav_item_activity_titles">
+        <item>Come Lets Go!</item>
+        <item>Add Trip</item>
+        <item>My Trips</item>
+        <item>My Profile</item>
+    </string-array>
 </resources>

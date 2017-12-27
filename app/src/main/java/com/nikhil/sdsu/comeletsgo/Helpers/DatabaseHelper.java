@@ -3,6 +3,7 @@ package com.nikhil.sdsu.comeletsgo.Helpers;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -23,7 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_SIGN_UP_DETAILS = "sign_up_database.db";
     public static final String TABLE_NAME_SIGN_UP_DETAILS = "sign_up_table";
     public static final String CONTACT = "contact";
-    public static final String EMAIL = "emailId";
+    public static String EMAIL = "emailId";
     public static final String NAME = "name";
     public static final String CAR_NAME = "carName";
     public static final String CAR_COLOR = "carColor";
@@ -96,5 +97,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Log.d("rew","List value of object: "+list.get(0).getContact());
         sqLiteDatabase.close();
         return list;
+    }
+
+    public boolean updateProfileData(SignUpDetailsPOJO signUpDetailsPOJO){
+        Log.d("rew","In updateProfileData Method");
+        SQLiteDatabase sqLiteDatabase = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CONTACT,signUpDetailsPOJO.getContact());
+        contentValues.put(CAR_NAME,signUpDetailsPOJO.getCarName());
+        contentValues.put(CAR_COLOR,signUpDetailsPOJO.getCarColor());
+        contentValues.put(CAR_LICENSE,signUpDetailsPOJO.getCarLicence());
+        contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
+        try{
+            sqLiteDatabase.update(TABLE_NAME_SIGN_UP_DETAILS,contentValues,EMAIL+"=?",
+                    new String[] {signUpDetailsPOJO.getEmailId()});
+        }catch (SQLException e){
+            Log.d("rew","Exception: "+e);
+            return false;
+        }
+        return true;
     }
 }

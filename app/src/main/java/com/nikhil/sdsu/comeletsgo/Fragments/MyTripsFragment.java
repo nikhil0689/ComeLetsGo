@@ -3,11 +3,20 @@ package com.nikhil.sdsu.comeletsgo.Fragments;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.R;
 
 /**
@@ -23,7 +32,7 @@ public class MyTripsFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private FirebaseAuth auth;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -65,7 +74,37 @@ public class MyTripsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_trips, container, false);
+        View view =  inflater.inflate(R.layout.fragment_my_trips, container, false);
+        auth = FirebaseAuth.getInstance();
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        checkForMyProfile();
+    }
+    private void checkForMyProfile() {
+        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        ValueEventListener valueEventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                if(dataSnapshot.getChildrenCount()<1){
+                    Fragment myProfileFragment = new MyProfileFragment();
+                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.screen_area,myProfileFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
+        people1.addValueEventListener(valueEventListener1);
     }
 
     // TODO: Rename method, update argument and hook method into UI event

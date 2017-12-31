@@ -1,8 +1,10 @@
 package com.nikhil.sdsu.comeletsgo.Activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -24,16 +26,18 @@ import com.nikhil.sdsu.comeletsgo.Fragments.AddTripFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.HomeFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyProfileFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyTripsFragment;
+import com.nikhil.sdsu.comeletsgo.Fragments.RequestsFragment;
 import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         AddTripFragment.OnFragmentInteractionListener,MyTripsFragment.OnFragmentInteractionListener,
-        MyProfileFragment.OnFragmentInteractionListener{
+        MyProfileFragment.OnFragmentInteractionListener,RequestsFragment.OnFragmentInteractionListener{
     List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     private TextView navigation_header_caption;
     DatabaseHelper databaseHelper = new DatabaseHelper(this);
@@ -51,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     private static final String TAG_ADD_TRIP = "add_trip";
     private static final String TAG_MY_TRIPS = "my_trips";
     private static final String TAG_MY_PROFILE = "my_profile";
+    private static final String TAG_REQUESTS = "requests";
+    private static final String TAG_LOG_OUT= "logout";
     public static String CURRENT_TAG = TAG_HOME;
 
     // flag to load home fragment when user presses back key
@@ -65,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         auth = FirebaseAuth.getInstance();
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
         String email = auth.getCurrentUser().getEmail().toString();
-        String name = auth.getCurrentUser().getDisplayName().split("-")[1];
+        String contact = auth.getCurrentUser().getDisplayName().toString();
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mHandler = new Handler();
@@ -78,19 +84,19 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         navigationView = findViewById(R.id.nav_view);
         header = navigationView.getHeaderView(0);
         navigation_header_caption = header.findViewById(R.id.nav_header_small_text);
-        navigation_header_caption.setText(name);
+        navigation_header_caption.setText(contact);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                navItemIndex = 1;
+                CURRENT_TAG = TAG_ADD_TRIP;
+                loadHomeFragment();
             }
         });
         Log.d("rew","inside main activity oncreate");
-        String sql = "SELECT * FROM sign_up_table WHERE emailId="+"'"+email+"'";
-        userDetailsList = databaseHelper.getUserData(sql);
-        Log.d("rew","contact: "+userDetailsList.get(0).getContact());
+        Log.d("rew","email in main activity"+email);
+
         setUpNavigationView();
         if (savedInstanceState == null) {
             navItemIndex = 0;
@@ -145,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 return homeFragment;
             case 1:
                 // photos
-                AddTripFragment AddTripFragment = new AddTripFragment();
-                return AddTripFragment;
+                AddTripFragment addTripFragment = new AddTripFragment();
+                return addTripFragment;
             case 2:
                 // movies fragment
                 MyTripsFragment myTripsFragment = new MyTripsFragment();
@@ -155,7 +161,10 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                 // notifications fragment
                 MyProfileFragment myProfileFragment = new MyProfileFragment();
                 return myProfileFragment;
-
+            case 4:
+                // requests
+                RequestsFragment requestsFragment = new RequestsFragment();
+                return requestsFragment;
             default:
                 return new HomeFragment();
         }
@@ -228,6 +237,16 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
                     case R.id.nav_my_profile:
                         navItemIndex = 3;
                         CURRENT_TAG = TAG_MY_PROFILE;
+                        break;
+                    case R.id.nav_requests:
+                        navItemIndex = 4;
+                        CURRENT_TAG = TAG_REQUESTS;
+                        break;
+                    case R.id.nav_sign_out:
+                        auth.signOut();
+                        Intent login = new Intent(MainActivity.this, LoginActivity.class);
+                        startActivity(login);
+                        finish();
                         break;
                     default:
                         navItemIndex = 0;

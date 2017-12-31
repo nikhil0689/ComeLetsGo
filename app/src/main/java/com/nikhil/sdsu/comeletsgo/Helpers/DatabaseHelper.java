@@ -68,7 +68,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(CAR_NAME,signUpDetailsPOJO.getCarName());
         contentValues.put(CAR_COLOR,signUpDetailsPOJO.getCarColor());
         contentValues.put(CAR_LICENSE,signUpDetailsPOJO.getCarLicence());
-        contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
+        //contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
         try{
             Log.d("rew","In Insert user method");
             sqLiteDatabase.insertOrThrow(TABLE_NAME_SIGN_UP_DETAILS,null,contentValues);
@@ -92,7 +92,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         signUpDetailsPOJO.setCarName(cursor.getString(3));
         signUpDetailsPOJO.setCarColor(cursor.getString(4));
         signUpDetailsPOJO.setCarLicence(cursor.getString(5));
-        signUpDetailsPOJO.setAddress(cursor.getString(6));
+        //signUpDetailsPOJO.setAddress(cursor.getString(6));
         list.add(signUpDetailsPOJO);
         Log.d("rew","List value of object: "+list.get(0).getContact());
         sqLiteDatabase.close();
@@ -107,7 +107,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(CAR_NAME,signUpDetailsPOJO.getCarName());
         contentValues.put(CAR_COLOR,signUpDetailsPOJO.getCarColor());
         contentValues.put(CAR_LICENSE,signUpDetailsPOJO.getCarLicence());
-        contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
+        //contentValues.put(ADDRESS,signUpDetailsPOJO.getAddress());
         try{
             sqLiteDatabase.update(TABLE_NAME_SIGN_UP_DETAILS,contentValues,EMAIL+"=?",
                     new String[] {signUpDetailsPOJO.getEmailId()});

@@ -13,17 +13,6 @@
         android:padding="10dp"
         android:fitsSystemWindows="true">
         <TextView
-            android:id="@+id/my_profile_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="left"
-            android:layout_marginBottom="8dp"
-            android:drawablePadding="16dp"
-            android:gravity="left"
-            android:padding="10dp"
-            android:text="Name"
-            android:textSize="25sp" />
-        <TextView
             android:id="@+id/my_profile_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,7 +23,7 @@
             android:padding="10dp"
             android:text="Email ID"
             android:textSize="25sp" />
-        <EditText
+        <TextView
             android:id="@+id/my_profile_contact"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -45,6 +34,18 @@
             android:padding="10dp"
             android:hint="Contact"
             android:textSize="25sp" />
+        <EditText
+            android:id="@+id/my_profile_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginBottom="8dp"
+            android:drawablePadding="16dp"
+            android:gravity="left"
+            android:padding="10dp"
+            android:hint="Name"
+            android:textSize="25sp" />
+
         <EditText
             android:id="@+id/my_profile_car"
             android:layout_width="match_parent"

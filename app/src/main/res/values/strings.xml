@@ -13,5 +13,9 @@
         <item>Add Trip</item>
         <item>My Trips</item>
         <item>My Profile</item>
+        <item>Requests</item>
     </string-array>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

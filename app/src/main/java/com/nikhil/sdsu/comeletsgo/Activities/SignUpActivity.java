@@ -22,7 +22,7 @@ import com.nikhil.sdsu.comeletsgo.R;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 
 public class SignUpActivity extends AppCompatActivity {
-    private EditText name,contact,emailId,password,carName,carColor,carLisence,homeAddress;
+    private EditText contact,emailId,password;
     private Button submit,reset;
     private FirebaseAuth auth;
 
@@ -30,14 +30,9 @@ public class SignUpActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        name = findViewById(R.id.sign_up_name);
         contact = findViewById(R.id.sign_up_contact);
         emailId = findViewById(R.id.sign_up_email);
         password = findViewById(R.id.signup_password);
-        carName = findViewById(R.id.signup_car_name);
-        carColor = findViewById(R.id.signup_car_color);
-        carLisence = findViewById(R.id.signup_car_number);
-        homeAddress = findViewById(R.id.signup_address);
         submit = findViewById(R.id.sign_up_submit);
         reset = findViewById(R.id.sign_up_reset_button);
         auth = FirebaseAuth.getInstance();
@@ -46,19 +41,9 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final String email = emailId.getText().toString().trim();
                 String pass = password.getText().toString().trim();
-                String dispName = name.getText().toString().trim();
-                String phno = contact.getText().toString().trim();
-                final String displayName = phno.concat("-").concat(dispName);
+                final String phno = contact.getText().toString().trim();
                 if(validInput()){
-                    final SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
-                    signUpDetailsPOJO.setName(dispName);
-                    signUpDetailsPOJO.setCarName(carName.getText().toString().trim());
-                    signUpDetailsPOJO.setCarColor(carColor.getText().toString().trim());
-                    signUpDetailsPOJO.setCarLicence(carLisence.getText().toString().trim());
-                    signUpDetailsPOJO.setEmailId(email);
-                    signUpDetailsPOJO.setContact(phno);
-                    signUpDetailsPOJO.setAddress(homeAddress.getText().toString().trim());
-                    Log.d("rew","user data: "+email+" "+pass+" "+displayName);
+                    Log.d("rew","user data: "+email+" "+pass+" "+phno);
                     auth.createUserWithEmailAndPassword(email,pass)
                             .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -71,28 +56,22 @@ public class SignUpActivity extends AppCompatActivity {
                                         FirebaseUser user = auth.getCurrentUser();
 
                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(displayName)
+                                                .setDisplayName(phno)
                                                 .build();
                                         try {
-                                            DatabaseHelper databaseHelper = new DatabaseHelper(SignUpActivity.this);
-                                            boolean dbUpdate = databaseHelper.insertUser(signUpDetailsPOJO);
-                                            if(dbUpdate){
-                                                user.updateProfile(profileUpdates)
-                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                            @Override
-                                                            public void onComplete(@NonNull Task<Void> task) {
-                                                                if (task.isSuccessful()) {
-                                                                    Log.d("rew", "User profile updated.");
-                                                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                                                    finish();
-                                                                }else{
-                                                                    Log.d("rew","user profile update failed");
-                                                                }
+                                            user.updateProfile(profileUpdates)
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if (task.isSuccessful()) {
+                                                                Log.d("rew", "User profile updated.");
+                                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                finish();
+                                                            }else{
+                                                                Log.d("rew","user profile update failed");
                                                             }
-                                                        });
-                                            }else{
-                                                Log.d("rew","db update failed");
-                                            }
+                                                        }
+                                                    });
                                         } catch (Exception e) {
                                             Log.d("rew", "failed: "+e);
                                         }
@@ -109,7 +88,6 @@ public class SignUpActivity extends AppCompatActivity {
             public void onClick(View v) {
                 emailId.setText("");
                 password.setText("");
-                name.setText("");
                 contact.setText("");
             }
         });
@@ -132,36 +110,6 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             dataValid = false;
         }
-
-        if(TextUtils.isEmpty(name.getText().toString())){
-            name.setError("Enter name");
-            dataValid = false;
-        }
-        if(name.getText().toString().matches(".*\\d+.*")){
-            name.setError("No Numbers please");
-            dataValid = false;
-        }
-        if(TextUtils.isEmpty(contact.getText().toString())){
-            contact.setError("Enter Phone No.");
-            dataValid = false;
-        }
-        if(TextUtils.isEmpty(carName.getText().toString())){
-            contact.setError("Enter Car Name");
-            dataValid = false;
-        }
-        if(TextUtils.isEmpty(carLisence.getText().toString())){
-            contact.setError("Enter Phone No.");
-            dataValid = false;
-        }
-        if(TextUtils.isEmpty(carColor.getText().toString())){
-            contact.setError("Enter Phone No.");
-            dataValid = false;
-        }
-        if(TextUtils.isEmpty(homeAddress.getText().toString())){
-            contact.setError("Enter Phone No.");
-            dataValid = false;
-        }
-
         return dataValid;
     }
 

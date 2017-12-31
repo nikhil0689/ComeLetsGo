@@ -1,17 +1,18 @@
 package com.nikhil.sdsu.comeletsgo.Pojo;
 
+import java.io.Serializable;
+
 /**
  * Created by Nikhil on 12/25/2017.
  */
 
-public class SignUpDetailsPOJO {
+public class SignUpDetailsPOJO implements Serializable{
     String name;
     String emailId;
     String contact;
     String carName;
     String carColor;
     String carLicence;
-    String address;
 
     public String getName() {
         return name;
@@ -59,14 +60,5 @@ public class SignUpDetailsPOJO {
     public void setCarLicence(String carLicence) {
         this.carLicence = carLicence;
     }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
 
 }

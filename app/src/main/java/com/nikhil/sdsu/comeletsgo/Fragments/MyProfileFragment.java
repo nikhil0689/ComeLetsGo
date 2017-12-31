@@ -17,6 +17,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
@@ -37,8 +42,8 @@ public class MyProfileFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private TextView name,emailId;
-    private EditText contact,car,color,license;
+    private TextView name,emailId,contact;
+    private EditText car,color,license;
     private Button back,update;
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -46,6 +51,7 @@ public class MyProfileFragment extends Fragment {
     private FirebaseAuth auth;
     List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     private OnFragmentInteractionListener mListener;
+    private DatabaseReference mDatabase;
 
     public MyProfileFragment() {
         // Required empty public constructor
@@ -82,14 +88,9 @@ public class MyProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_my_profile, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        final DatabaseHelper databaseHelper = new DatabaseHelper(this.getContext());
+        View view = inflater.inflate(R.layout.fragment_my_profile, container, false);
         auth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         name = view.findViewById(R.id.my_profile_name);
         contact = view.findViewById(R.id.my_profile_contact);
         emailId = view.findViewById(R.id.my_profile_email);
@@ -97,16 +98,38 @@ public class MyProfileFragment extends Fragment {
         color = view.findViewById(R.id.my_profile_car_color);
         license = view.findViewById(R.id.my_profile_license);
         update = view.findViewById(R.id.my_profile_update);
-        final String email = auth.getCurrentUser().getEmail().toString();
-        String sql = "SELECT * FROM sign_up_table WHERE emailId="+"'"+email+"'";
-        userDetailsList = databaseHelper.getUserData(sql);
-        Log.d("rew","contact: "+userDetailsList.get(0).getContact());
-        name.setText(userDetailsList.get(0).getName());
+        String email = auth.getCurrentUser().getEmail().toString();
+        String phNo = auth.getCurrentUser().getDisplayName().toString();
         emailId.setText(email);
-        contact.setText(userDetailsList.get(0).getContact());
-        car.setText(userDetailsList.get(0).getCarName());
-        color.setText(userDetailsList.get(0).getCarColor());
-        license.setText(userDetailsList.get(0).getCarLicence());
+        contact.setText(phNo);
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                if(dataSnapshot.getChildrenCount()>0){
+                    SignUpDetailsPOJO signUpDetailsPOJO = dataSnapshot.getValue(SignUpDetailsPOJO.class);
+                    name.setText(signUpDetailsPOJO.getName());
+                    car.setText(signUpDetailsPOJO.getCarName());
+                    color.setText(signUpDetailsPOJO.getCarColor());
+                    license.setText(signUpDetailsPOJO.getCarLicence());
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        };
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference people = database.getReference("personal_data").child(contact.getText().toString());
+        people.addValueEventListener(valueEventListener);
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,15 +139,17 @@ public class MyProfileFragment extends Fragment {
                 signUpDetailsPOJO.setCarName(car.getText().toString().trim());
                 signUpDetailsPOJO.setCarColor(color.getText().toString().trim());
                 signUpDetailsPOJO.setCarLicence(license.getText().toString().trim());
-                signUpDetailsPOJO.setEmailId(email);
-                boolean updated = databaseHelper.updateProfileData(signUpDetailsPOJO);
-                if(updated){
-                    Log.d("rew","Data updated");
+                signUpDetailsPOJO.setEmailId(emailId.getText().toString().trim());
+                signUpDetailsPOJO.setName(name.getText().toString().trim());
+                //boolean updated = databaseHelper.updateProfileData(signUpDetailsPOJO);
+                try{
+                    mDatabase.child("personal_data").child(contact.getText().toString()).setValue(signUpDetailsPOJO);
+                    Log.d("rew","Data submitted successfully");
                     Intent intent = getActivity().getIntent();
                     getActivity().finish();
                     startActivity(intent);
-                }else{
-                    Log.d("rew","Data Update failed");
+                }catch(Exception e){
+                    Log.d("rew","Exception: "+e);
                 }
             }
         });

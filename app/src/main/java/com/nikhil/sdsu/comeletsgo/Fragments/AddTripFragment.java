@@ -1,15 +1,38 @@
 package com.nikhil.sdsu.comeletsgo.Fragments;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TimePicker;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
+import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
+import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -20,17 +43,21 @@ import com.nikhil.sdsu.comeletsgo.R;
  * create an instance of this fragment.
  */
 public class AddTripFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private OnFragmentInteractionListener mListener;
-
+    private EditText source,destination,seats;
+    private TextView date,time;
+    private Button datePicker,timePicker,reset,submit;
+    private int mYear,mMonth,mDay,mHour,mMinute;
+    private DatabaseReference mDatabase;
+    private String name,contact,car,color,license;
+    List userDetailsList = new ArrayList<>();
+    DatabaseHelper databaseHelper = new DatabaseHelper(getContext());
+    private FirebaseAuth auth;
     public AddTripFragment() {
         // Required empty public constructor
     }
@@ -67,6 +94,18 @@ public class AddTripFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_add_trip,null);
+        auth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        Log.d("rew","firebase ref: "+mDatabase.toString());
+        source = view.findViewById(R.id.add_trip_from);
+        destination = view.findViewById(R.id.add_trip_to);
+        date = view.findViewById(R.id.add_trip_date_text);
+        time = view.findViewById(R.id.add_trip_time_text);
+        seats = view.findViewById(R.id.add_trip_number_of_seats);
+        datePicker = view.findViewById(R.id.add_trip_date_button);
+        timePicker = view.findViewById(R.id.add_trip_time_button);
+        reset = view.findViewById(R.id.add_trip_reset_button);
+        submit = view.findViewById(R.id.add_trip_submit);
         return view;
     }
 
@@ -80,6 +119,139 @@ public class AddTripFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        selectDate();
+        selectTime();
+        resetAll();
+        if(auth.getCurrentUser() != null){
+            Log.d("rew","Current User: "+auth.getCurrentUser().getDisplayName().toString());
+            contact = auth.getCurrentUser().getDisplayName().toString();
+        }
+        checkForMyProfile();
+        ValueEventListener valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                if(dataSnapshot.getChildrenCount()>0){
+                    SignUpDetailsPOJO signUpDetailsPOJO = dataSnapshot.getValue(SignUpDetailsPOJO.class);
+                    name = signUpDetailsPOJO.getName();
+                    car = signUpDetailsPOJO.getCarName();
+                    color = signUpDetailsPOJO.getCarColor();
+                    license = signUpDetailsPOJO.getCarLicence();
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+
+        };
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference people = database.getReference("personal_data").child(contact);
+        people.addValueEventListener(valueEventListener);
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AddTripDetailsPOJO addTripDetailsPOJO = new AddTripDetailsPOJO();
+                addTripDetailsPOJO.setSource(source.getText().toString().trim());
+                addTripDetailsPOJO.setDestination(destination.getText().toString().trim());
+                addTripDetailsPOJO.setDate(date.getText().toString().trim());
+                addTripDetailsPOJO.setTime(time.getText().toString().trim());
+                int noOfSeats = Integer.parseInt(seats.getText().toString());
+                addTripDetailsPOJO.setSeatsAvailable(noOfSeats);
+                addTripDetailsPOJO.setPostedBy(name);
+                addTripDetailsPOJO.setContact(contact);
+                addTripDetailsPOJO.setCar(car);
+                addTripDetailsPOJO.setCarColor(color);
+                addTripDetailsPOJO.setLicense(license);
+                addTripDetailsPOJO.setUid(mDatabase.child("trip_details").push().getKey());
+                Log.d("rew","uid: "+addTripDetailsPOJO.getUid());
+                try{
+                    mDatabase.child("trip_details").child(contact).setValue(addTripDetailsPOJO);
+                    Log.d("rew","Data submitted successfully");
+                    Intent intent = getActivity().getIntent();
+                    getActivity().finish();
+                    startActivity(intent);
+                }catch(Exception e){
+                    Log.d("rew","Exception: "+e);
+                }
+            }
+        });
+    }
+    private void checkForMyProfile() {
+        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        ValueEventListener valueEventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                if(dataSnapshot.getChildrenCount()<1){
+                    Fragment myProfileFragment = new MyProfileFragment();
+                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.screen_area,myProfileFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
+        people1.addValueEventListener(valueEventListener1);
+    }
+    private void resetAll() {
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                source.setText("");
+                destination.setText("");
+                date.setText("");
+                time.setText("");
+                seats.setText("");
+            }
+        });
+    }
+
+    private void selectTime() {
+        timePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Calendar c = Calendar.getInstance();
+                mHour = c.get(Calendar.HOUR_OF_DAY);
+                mMinute = c.get(Calendar.MINUTE);
+                TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hourOfDay,
+                                                  int minute) {
+                                time.setText(hourOfDay + ":" + minute);
+                            }
+                        }, mHour, mMinute, false);
+                timePickerDialog.show();
+            }
+        });
+    }
+
+    private void selectDate() {
+        datePicker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final Calendar calendar = Calendar.getInstance();
+                mYear = calendar.get(Calendar.YEAR);
+                mMonth = calendar.get(Calendar.MONTH);
+                mDay = calendar.get(Calendar.DAY_OF_MONTH);
+                DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                date.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
+                            }
+                        }, mYear, mMonth, mDay);
+                datePickerDialog.show();
+            }
+        });
     }
 
     @Override

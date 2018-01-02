@@ -17,9 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
 import com.nikhil.sdsu.comeletsgo.R;
-import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 
 public class SignUpActivity extends AppCompatActivity {
     private EditText contact,emailId,password;

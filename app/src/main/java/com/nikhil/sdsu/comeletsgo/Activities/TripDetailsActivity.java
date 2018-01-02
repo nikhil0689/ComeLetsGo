@@ -1,10 +1,13 @@
 package com.nikhil.sdsu.comeletsgo.Activities;
 
 import android.content.DialogInterface;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -27,9 +30,10 @@ import java.util.Collections;
 
 public class TripDetailsActivity extends AppCompatActivity {
     private TextView source,destination,date,time,seats,poster,posterContact,car,carColor,license;
-    private Button back,join;
+    private Button back,join,delete;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
+    private String requestorName="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,15 +57,16 @@ public class TripDetailsActivity extends AppCompatActivity {
         license = findViewById(R.id.trip_car_license);
         back = findViewById(R.id.trip_cancel_button);
         join = findViewById(R.id.trip_join_button);
-        source.setText(addTripDetails.getSource().concat(" TO "));
+        delete = findViewById(R.id.trip_delete_button);
+        source.setText(addTripDetails.getSource());
         destination.setText(addTripDetails.getDestination());
-        date.setText(addTripDetails.getDate().concat(" TIME: "));
+        date.setText(addTripDetails.getDate());
         time.setText(addTripDetails.getTime());
-        seats.setText("Seats Available: "+addTripDetails.getSeatsAvailable());
+        seats.setText(""+addTripDetails.getSeatsAvailable());
         poster.setText(addTripDetails.getPostedBy());
         posterContact.setText(addTripDetails.getContact());
         Log.d("rew","contact from cloud: "+posterContact.getText().toString());
-        car.setText(addTripDetails.getCar().concat(" COLOR: "));
+        car.setText(addTripDetails.getCar());
         carColor.setText(addTripDetails.getCarColor());
         license.setText(addTripDetails.getLicense());
         ValueEventListener valueEventListener = new ValueEventListener() {
@@ -74,9 +79,15 @@ public class TripDetailsActivity extends AppCompatActivity {
                         if(requestDetailsPOJO.isApprovalStatus()){
                             Log.d("rew","Approved for: "+requestDetailsPOJO.getRequestorContact());
                             LinearLayout linearLayout = findViewById(R.id.text_programatically);
-                            TextView textView = new TextView(TripDetailsActivity.this);
-                            textView.setText(requestDetailsPOJO.getRequestorContact().concat(" joined"));
-                            linearLayout.addView(textView);
+                            TextView passengers1 = new TextView(TripDetailsActivity.this);
+                            passengers1.setText("People in the Ride");
+                            passengers1.setGravity(Gravity.CENTER);
+                            linearLayout.addView(passengers1);
+                            TextView passengers = new TextView(TripDetailsActivity.this);
+                            passengers.setText(requestDetailsPOJO.getRequestorName());
+                            passengers.setGravity(Gravity.CENTER);
+                            passengers.setTypeface(Typeface.DEFAULT_BOLD);
+                            linearLayout.addView(passengers);
                             if(phNo.equalsIgnoreCase(requestDetailsPOJO.getRequestorContact())){
                                 join.setEnabled(false);
                             }
@@ -105,16 +116,68 @@ public class TripDetailsActivity extends AppCompatActivity {
 
         if(phNo.equals(posterContact.getText().toString())){
             join.setEnabled(false);
+            Log.d("rew","phno: "+phNo);
+            Log.d("rew","poster contact: "+posterContact.getText().toString());
             Log.d("rew","Join Disabled");
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.d("rew","delete onclick");
+                    AlertDialog.Builder alert = new AlertDialog.Builder(TripDetailsActivity.this);
+                    alert.setTitle("Delete");
+                    alert.setMessage("Delete Ride");
+                    alert.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            mDatabase.child("requests").child(posterContact.getText().toString()).removeValue();
+                            mDatabase.child("trip_details").child(posterContact.getText().toString()).removeValue();
+                            dialogInterface.dismiss();
+                            finish();
+                        }
+                    });
+                    alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    alert.show();
+
+                }
+            });
 
         }else{
+            delete.setVisibility(View.INVISIBLE);
+            ValueEventListener valueEventListener1 = new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " trips available");
+                    if (dataSnapshot.getChildrenCount() > 0) {
+                        SignUpDetailsPOJO signUpDetailsPOJO = dataSnapshot.getValue(SignUpDetailsPOJO.class);
+                        requestorName = signUpDetailsPOJO.getName();
+                        Log.d("rew", requestorName);
+                    } else {
+                        Log.d("rew","No Data yet");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            };
+            FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+            DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
+            people1.addValueEventListener(valueEventListener1);
             join.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     //Push notification
                     Log.d("rew","Different contact");
                     RequestDetailsPOJO requestDetails = new RequestDetailsPOJO();
-                    requestDetails.setRequestorName(auth.getCurrentUser().getEmail().toString());
+                    requestDetails.setRequestorName(requestorName);
                     requestDetails.setRequestorContact(phNo);
                     requestDetails.setPosterName(poster.getText().toString());
                     requestDetails.setPosterContact(posterContact.getText().toString());

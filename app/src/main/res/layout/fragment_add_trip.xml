@@ -49,6 +49,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/add_trip_date_text"
                 android:layout_weight="0.9"
+                android:textStyle="bold"
+                android:enabled="false"
                 android:layout_margin="10dp"/>
 
             <Button
@@ -69,7 +71,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/add_trip_time_text"
+                android:textStyle="bold"
                 android:layout_weight="0.9"
+                android:enabled="false"
                 android:layout_margin="10dp"/>
 
             <Button

@@ -38,7 +38,12 @@ public class RequestsAdapter extends ArrayAdapter {
         TextView status = view.findViewById(R.id.request_list_approval);
         requestorName.setText(""+userProperties.get(position).getRequestorName());
         requestorContact.setText(""+userProperties.get(position).getRequestorContact());
-        status.setText(""+userProperties.get(position).isApprovalStatus());
+        if(userProperties.get(position).isApprovalStatus()){
+            status.setText("Approved");
+        }else{
+            status.setText("Waiting");
+        }
+
         return view;
     }
 }

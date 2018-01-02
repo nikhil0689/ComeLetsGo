@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -27,20 +25,19 @@ import com.nikhil.sdsu.comeletsgo.Fragments.HomeFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyProfileFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyTripsFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.RequestsFragment;
-import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
+import com.nikhil.sdsu.comeletsgo.Fragments.UpdateProfileFragment;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         AddTripFragment.OnFragmentInteractionListener,MyTripsFragment.OnFragmentInteractionListener,
-        MyProfileFragment.OnFragmentInteractionListener,RequestsFragment.OnFragmentInteractionListener{
+        MyProfileFragment.OnFragmentInteractionListener,RequestsFragment.OnFragmentInteractionListener,
+        UpdateProfileFragment.OnFragmentInteractionListener{
     List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     private TextView navigation_header_caption;
-    DatabaseHelper databaseHelper = new DatabaseHelper(this);
     private FirebaseAuth auth;
     private NavigationView navigationView;
     private DrawerLayout drawer;

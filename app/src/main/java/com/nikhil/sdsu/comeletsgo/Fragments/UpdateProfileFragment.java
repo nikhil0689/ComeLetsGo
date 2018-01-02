@@ -4,22 +4,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Activities.LoginActivity;
+import com.nikhil.sdsu.comeletsgo.Activities.SignUpActivity;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
@@ -29,28 +36,29 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link MyProfileFragment.OnFragmentInteractionListener} interface
+ * {@link UpdateProfileFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MyProfileFragment#newInstance} factory method to
+ * Use the {@link UpdateProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MyProfileFragment extends Fragment {
+public class UpdateProfileFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    private TextView name,emailId,contact;
-    private TextView car,color,license;
-    private Button back,update;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private FirebaseAuth auth;
-    List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
+    private TextView emailId,contact;
+    private EditText name;
+    private EditText car,color,license;
+    private Button back,update;
     private OnFragmentInteractionListener mListener;
+    private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-
-    public MyProfileFragment() {
+    String phNo="";
+    public UpdateProfileFragment() {
         // Required empty public constructor
     }
 
@@ -60,11 +68,11 @@ public class MyProfileFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment MyProfileFragment.
+     * @return A new instance of fragment UpdateProfileFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static MyProfileFragment newInstance(String param1, String param2) {
-        MyProfileFragment fragment = new MyProfileFragment();
+    public static UpdateProfileFragment newInstance(String param1, String param2) {
+        UpdateProfileFragment fragment = new UpdateProfileFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -85,19 +93,18 @@ public class MyProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_my_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_update_profile, container, false);
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        name = view.findViewById(R.id.my_profile_name);
-        contact = view.findViewById(R.id.my_profile_contact);
-        emailId = view.findViewById(R.id.my_profile_email);
-        car = view.findViewById(R.id.my_profile_car);
-        color = view.findViewById(R.id.my_profile_car_color);
-        license = view.findViewById(R.id.my_profile_license);
-        update = view.findViewById(R.id.my_profile_update);
-        back = view.findViewById(R.id.my_profile_back);
+        name = view.findViewById(R.id.update_profile_name);
+        contact = view.findViewById(R.id.update_profile_contact);
+        emailId = view.findViewById(R.id.update_profile_email);
+        car = view.findViewById(R.id.update_profile_car);
+        color = view.findViewById(R.id.update_profile_car_color);
+        license = view.findViewById(R.id.update_profile_license);
+        update = view.findViewById(R.id.update_profile_update);
         String email = auth.getCurrentUser().getEmail().toString();
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        phNo = auth.getCurrentUser().getDisplayName().toString();
         emailId.setText(email);
         contact.setText(phNo);
         ValueEventListener valueEventListener = new ValueEventListener() {
@@ -131,19 +138,25 @@ public class MyProfileFragment extends Fragment {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("rew","Update button clicked");
-                Fragment updateProfileFragment = new UpdateProfileFragment();
-                FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
-                fragmentTransaction.commitAllowingStateLoss();
-            }
-        });
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = getActivity().getIntent();
-                getActivity().finish();
-                startActivity(intent);
+                Log.d("rew","back button clicked");
+                SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
+                signUpDetailsPOJO.setContact(contact.getText().toString().trim());
+                signUpDetailsPOJO.setCarName(car.getText().toString().trim());
+                signUpDetailsPOJO.setCarColor(color.getText().toString().trim());
+                signUpDetailsPOJO.setCarLicence(license.getText().toString().trim());
+                signUpDetailsPOJO.setEmailId(emailId.getText().toString().trim());
+                signUpDetailsPOJO.setName(name.getText().toString().trim());
+                //boolean updated = databaseHelper.updateProfileData(signUpDetailsPOJO);
+                try{
+                    mDatabase.child("personal_data").child(phNo).removeValue();
+                    mDatabase.child("personal_data").child(contact.getText().toString()).setValue(signUpDetailsPOJO);
+                    Log.d("rew","Data submitted successfully");
+                    Intent intent = getActivity().getIntent();
+                    getActivity().finish();
+                    startActivity(intent);
+                }catch(Exception e){
+                    Log.d("rew","Exception: "+e);
+                }
             }
         });
     }

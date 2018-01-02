@@ -25,7 +25,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.nikhil.sdsu.comeletsgo.Helpers.DatabaseHelper;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
@@ -56,7 +55,6 @@ public class AddTripFragment extends Fragment {
     private DatabaseReference mDatabase;
     private String name,contact,car,color,license;
     List userDetailsList = new ArrayList<>();
-    DatabaseHelper databaseHelper = new DatabaseHelper(getContext());
     private FirebaseAuth auth;
     public AddTripFragment() {
         // Required empty public constructor
@@ -185,9 +183,9 @@ public class AddTripFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
                 if(dataSnapshot.getChildrenCount()<1){
-                    Fragment myProfileFragment = new MyProfileFragment();
+                    Fragment updateProfileFragment = new UpdateProfileFragment();
                     FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,myProfileFragment);
+                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
                     fragmentTransaction.commitAllowingStateLoss();
                 }
             }

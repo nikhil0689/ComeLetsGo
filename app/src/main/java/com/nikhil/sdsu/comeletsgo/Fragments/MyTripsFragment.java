@@ -91,9 +91,9 @@ public class MyTripsFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
                 if(dataSnapshot.getChildrenCount()<1){
-                    Fragment myProfileFragment = new MyProfileFragment();
+                    Fragment updateProfileFragment = new UpdateProfileFragment();
                     FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,myProfileFragment);
+                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
                     fragmentTransaction.commitAllowingStateLoss();
                 }
             }

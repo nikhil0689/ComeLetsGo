@@ -10,61 +10,144 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
+        android:layout_margin="10dp"
         android:orientation="vertical"
         tools:context="com.nikhil.sdsu.comeletsgo.Activities.TripDetailsActivity">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
             <TextView
                 android:id="@+id/trip_source"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:src="@drawable/arrow_right_bold"/>
             <TextView
                 android:id="@+id/trip_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/trip_date"
+                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Seats Available"/>
+            <TextView
+                android:id="@+id/trip_seats"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="0.5"
+            android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Date"/>
+            <TextView
+                android:id="@+id/trip_date"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_weight="0.5"
+            android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Time"/>
             <TextView
                 android:id="@+id/trip_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:gravity="center"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
         </LinearLayout>
-        <TextView
-            android:id="@+id/trip_seats"
-            android:gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
             android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Posted By"/>
             <TextView
                 android:id="@+id/trip_poster"
+                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
-            <TextView
-                android:id="@+id/trip_contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -72,27 +155,122 @@
             android:gravity="center"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/trip_car"
+                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Contact"/>
+            <TextView
+                android:id="@+id/trip_contact"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Car"/>
+            <TextView
+                android:id="@+id/trip_car"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Color"/>
             <TextView
                 android:id="@+id/trip_car_color"
+                android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp" />
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
         </LinearLayout>
-        <TextView
-            android:id="@+id/trip_car_license"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:textSize="18sp" />
+            android:orientation="horizontal">
+            <TextView
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"
+                android:text="Registration No."/>
+            <TextView
+                android:id="@+id/trip_car_license"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:background="#f0f0f4"
+                android:drawablePadding="8dp"
+                android:ems="10"
+                android:padding="10dp"
+                android:textColor="#000"/>
+        </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/text_programatically"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="10dp"
+            android:gravity="center"
             android:orientation="vertical">
          </LinearLayout>
 
@@ -120,5 +298,12 @@
                 android:text="JOIN"
                 tools:ignore="ButtonStyle" />
         </LinearLayout>
+        <Button
+            android:id="@+id/trip_delete_button"
+            android:layout_margin="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DELETE RIDE"
+            tools:ignore="ButtonStyle" />
     </LinearLayout>
 </ScrollView>

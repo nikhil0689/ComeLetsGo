@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.nikhil.sdsu.comeletsgo.Fragments.AddTripFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.HomeFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyProfileFragment;

@@ -57,6 +57,7 @@ public class RequestsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
     private int seatsAvailable;
+    private String posterContact="";
     private OnFragmentInteractionListener mListener;
 
     public RequestsFragment() {
@@ -111,6 +112,8 @@ public class RequestsFragment extends Fragment {
                     for (DataSnapshot msgSnapshot : dataSnapshot.getChildren()) {
                         RequestDetailsPOJO requestDetailsPOJO = msgSnapshot.getValue(RequestDetailsPOJO.class);
                         Log.d("rew", requestDetailsPOJO.getRequestorName());
+                        posterContact = requestDetailsPOJO.getPosterContact();
+                        Log.d("rew","Poster Contact in oncreate"+ requestDetailsPOJO.getPosterContact());
                         requestList.add(requestDetailsPOJO);
                     }
                     Collections.reverse(requestList);
@@ -118,7 +121,6 @@ public class RequestsFragment extends Fragment {
                         listadapter = new RequestsAdapter(getActivity(), 0, requestList);
                         requestsListView.setAdapter(listadapter);
                     }
-
                 } else {
                     if (listadapter != null) {
                         listadapter.notifyDataSetChanged();
@@ -131,18 +133,48 @@ public class RequestsFragment extends Fragment {
                         final RequestDetailsPOJO requestDetailsPOJO = (RequestDetailsPOJO) adapterView.getItemAtPosition(i);
                         final String requestorContact = ((RequestDetailsPOJO) adapterView.getItemAtPosition(i)).getRequestorContact();
                         if(requestDetailsPOJO.isApprovalStatus() == false && seatsAvailable > 0){
-                            requestDetailsPOJO.setApprovalStatus(true);
                             AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                             alert.setTitle("Add Passenger");
                             alert.setMessage("Accept");
                             alert.setPositiveButton("ADD", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    requestDetailsPOJO.setApprovalStatus(true);
                                     mDatabase.child("requests")
                                             .child(auth.getCurrentUser()
                                                     .getDisplayName())
                                             .child(requestorContact).setValue(requestDetailsPOJO);
                                     seatsAvailable = seatsAvailable-1;
+                                    mDatabase.child("trip_details")
+                                            .child(phNo).child("seatsAvailable").setValue(seatsAvailable);
+                                    listadapter.notifyDataSetChanged();
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+
+                            alert.show();
+                            return true;
+                        }else if(requestDetailsPOJO.isApprovalStatus()){
+                            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+                            alert.setTitle("Remove Passenger");
+                            alert.setMessage("Are you sure?");
+                            alert.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    requestDetailsPOJO.setApprovalStatus(false);
+                                    mDatabase.child("requests")
+                                            .child(auth.getCurrentUser()
+                                                    .getDisplayName())
+                                            .child(requestorContact).setValue(requestDetailsPOJO);
+                                    seatsAvailable = seatsAvailable+1;
                                     mDatabase.child("trip_details")
                                             .child(phNo).child("seatsAvailable").setValue(seatsAvailable);
                                     listadapter.notifyDataSetChanged();

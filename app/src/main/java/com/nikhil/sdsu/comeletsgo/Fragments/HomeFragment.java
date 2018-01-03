@@ -83,6 +83,7 @@ public class HomeFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -95,37 +96,12 @@ public class HomeFragment extends Fragment {
         Log.d("rew","inoncreate view");
         tripDetailsListView = view.findViewById(R.id.trip_list_home);
         checkForMyProfile();
-
-
+        getRideDetailsOntoTheList();
         return view;
     }
 
-    private void checkForMyProfile() {
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
-        ValueEventListener valueEventListener1 = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                if(dataSnapshot.getChildrenCount()<1){
-                    Fragment updateProfileFragment = new UpdateProfileFragment();
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
-                    fragmentTransaction.commitAllowingStateLoss();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+    private void getRideDetailsOntoTheList() {
 
-            }
-        };
-        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
-        people1.addValueEventListener(valueEventListener1);
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -158,19 +134,48 @@ public class HomeFragment extends Fragment {
                         startActivity(intent);
                     }
                 });
-
-
-
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                Log.d("rew","database error: "+databaseError);
             }
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference people = database.getReference("trip_details");
         people.addValueEventListener(valueEventListener);
+    }
+
+    private void checkForMyProfile() {
+        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        ValueEventListener valueEventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew", "in the personal details section: "+dataSnapshot.getChildrenCount());
+                if(dataSnapshot.getChildrenCount()<1){
+                    Fragment updateProfileFragment = new UpdateProfileFragment();
+                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
+                    fragmentTransaction.commitAllowingStateLoss();
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
+        people1.addValueEventListener(valueEventListener1);
+
+
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d("rew","in on view created");
+
 
     }
 

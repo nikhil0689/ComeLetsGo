@@ -1,5 +1,6 @@
 package com.nikhil.sdsu.comeletsgo.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,6 +50,7 @@ public class HomeFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
+    private ProgressDialog progressDialog;
     private OnFragmentInteractionListener mListener;
     private ListView tripDetailsListView;
     private FirebaseAuth auth;
@@ -93,9 +96,10 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        progressDialog = new ProgressDialog(getContext());
         Log.d("rew","inoncreate view");
         tripDetailsListView = view.findViewById(R.id.trip_list_home);
-        checkForMyProfile();
+        //checkForMyProfile();
         getRideDetailsOntoTheList();
         return view;
     }
@@ -105,26 +109,31 @@ public class HomeFragment extends Fragment {
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew","in on data change home fragment");
+                Toast.makeText(getContext(), "In OnDataChange",
+                        Toast.LENGTH_SHORT).show();
                 tripDataList.clear();
-                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " trips available");
-                if (dataSnapshot.getChildrenCount() > 0) {
-                    for (DataSnapshot msgSnapshot : dataSnapshot.getChildren()) {
-                        AddTripDetailsPOJO addTripDetailsPOJO = msgSnapshot.getValue(AddTripDetailsPOJO.class);
-                        Log.d("rew", addTripDetailsPOJO.getUid());
-                        tripDataList.add(addTripDetailsPOJO);
-                    }
-                    Collections.reverse(tripDataList);
-                    if(getActivity() != null){
-                        listadapter = new TripDetailsAdapter(getActivity(), 0, tripDataList);
-                        tripDetailsListView.setAdapter(listadapter);
-                    }
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " list items in home fragment");
 
-                } else {
-                    if (listadapter != null) {
-                        listadapter.notifyDataSetChanged();
-                    }
-                    Log.d("rew","No Data yet");
+                for (DataSnapshot msgSnapshot : dataSnapshot.getChildren()) {
+                    AddTripDetailsPOJO addTripDetailsPOJO = msgSnapshot.getValue(AddTripDetailsPOJO.class);
+                    Log.d("rew", addTripDetailsPOJO.getUid());
+                    tripDataList.add(addTripDetailsPOJO);
                 }
+                Collections.reverse(tripDataList);
+                if(getActivity() != null){
+                    listadapter = new TripDetailsAdapter(getActivity(), 0, tripDataList);
+                    tripDetailsListView.setAdapter(listadapter);
+                    progressDialog.dismiss();
+                }
+                if (listadapter != null) {
+                    listadapter.notifyDataSetChanged();
+                    //progressDialog.dismiss();
+                }
+                progressDialog.dismiss();
+                Log.d("rew","No Data yet");
+
+
                 tripDetailsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -139,11 +148,15 @@ public class HomeFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d("rew","database error: "+databaseError);
+                Toast.makeText(getActivity(), "Failed to load post.",
+                        Toast.LENGTH_SHORT).show();
             }
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference people = database.getReference("trip_details");
         people.addValueEventListener(valueEventListener);
+        progressDialog.setMessage("Loading data");
+        progressDialog.show();
     }
 
     private void checkForMyProfile() {
@@ -175,8 +188,28 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.d("rew","in on view created");
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("rew","in on resume");
+        getRideDetailsOntoTheList();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser user = auth.getCurrentUser();
+        updateUI(user);
+    }
+
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            Log.d("rew","in onstart home fragment:"+user.getUid());
+        } else {
+            Log.d("rew","in onstart user is null in home fragment:");
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event

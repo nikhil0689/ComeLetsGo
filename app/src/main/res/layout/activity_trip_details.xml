@@ -298,12 +298,30 @@
                 android:text="JOIN"
                 tools:ignore="ButtonStyle" />
         </LinearLayout>
-        <Button
-            android:id="@+id/trip_delete_button"
-            android:layout_margin="10dp"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="DELETE RIDE"
-            tools:ignore="ButtonStyle" />
+            android:layout_margin="10dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/trip_update_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="14dp"
+                android:layout_weight="1"
+                android:text="Update"
+                tools:ignore="ButtonStyle" />
+
+            <Button
+                android:id="@+id/trip_delete_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_weight="1"
+                android:text="Delete"
+                tools:ignore="ButtonStyle" />
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>

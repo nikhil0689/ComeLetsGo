@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Activities.UpdateRideActivity;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
@@ -104,6 +105,16 @@ public class AddTripFragment extends Fragment {
         timePicker = view.findViewById(R.id.add_trip_time_button);
         reset = view.findViewById(R.id.add_trip_reset_button);
         submit = view.findViewById(R.id.add_trip_submit);
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                source.setText("");
+                destination.setText("");
+                date.setText("");
+                time.setText("");
+                seats.setText("");
+            }
+        });
         return view;
     }
 
@@ -119,12 +130,12 @@ public class AddTripFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         selectDate();
         selectTime();
-        resetAll();
         if(auth.getCurrentUser() != null){
             Log.d("rew","Current User: "+auth.getCurrentUser().getDisplayName().toString());
             contact = auth.getCurrentUser().getDisplayName().toString();
         }
         checkForMyProfile();
+        checkForExistingRide();
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -176,6 +187,29 @@ public class AddTripFragment extends Fragment {
             }
         });
     }
+
+    private void checkForExistingRide() {
+        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        ValueEventListener valueEventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                if(dataSnapshot.getChildrenCount()>0){
+                    Intent intent = getActivity().getIntent();
+                    getActivity().finish();
+                    startActivity(intent);
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+        DatabaseReference people1 = database1.getReference("trip_details").child(phNo);
+        people1.addValueEventListener(valueEventListener1);
+    }
+
     private void checkForMyProfile() {
         String phNo = auth.getCurrentUser().getDisplayName().toString();
         ValueEventListener valueEventListener1 = new ValueEventListener() {
@@ -197,18 +231,6 @@ public class AddTripFragment extends Fragment {
         FirebaseDatabase database1 = FirebaseDatabase.getInstance();
         DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
         people1.addValueEventListener(valueEventListener1);
-    }
-    private void resetAll() {
-        reset.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                source.setText("");
-                destination.setText("");
-                date.setText("");
-                time.setText("");
-                seats.setText("");
-            }
-        });
     }
 
     private void selectTime() {

@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 import com.nikhil.sdsu.comeletsgo.Fragments.AddTripFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.HomeFragment;
@@ -261,6 +262,22 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             }
         });
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser user = auth.getCurrentUser();
+        updateUI(user);
+    }
+
+    private void updateUI(FirebaseUser user) {
+        if (user != null) {
+            Log.d("rew","in onstart:"+user.getUid());
+        } else {
+            Log.d("rew","in onstart user is null:");
+        }
+    }
+
 
     @Override
     public void onFragmentInteraction(Uri uri){

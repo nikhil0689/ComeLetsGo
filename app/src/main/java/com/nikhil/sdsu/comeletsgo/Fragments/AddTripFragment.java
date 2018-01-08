@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Activities.UpdateRideActivity;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
+import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
@@ -174,9 +175,19 @@ public class AddTripFragment extends Fragment {
                 addTripDetailsPOJO.setCarColor(color);
                 addTripDetailsPOJO.setLicense(license);
                 addTripDetailsPOJO.setUid(mDatabase.child("trip_details").push().getKey());
+
+                MyRideDetailsPOJO myRideDetailsPOJO = new MyRideDetailsPOJO();
+                myRideDetailsPOJO.setSource(source.getText().toString().trim());
+                myRideDetailsPOJO.setDestination(destination.getText().toString().trim());
+                myRideDetailsPOJO.setTime(time.getText().toString().trim());
+                myRideDetailsPOJO.setDate(date.getText().toString().trim());
+                myRideDetailsPOJO.setPosterName(name);
+                myRideDetailsPOJO.setPosterContact(contact);
+                myRideDetailsPOJO.setApprovalStatus(true);
                 Log.d("rew","uid: "+addTripDetailsPOJO.getUid());
                 try{
                     mDatabase.child("trip_details").child(contact).setValue(addTripDetailsPOJO);
+                    mDatabase.child("my_rides").child(addTripDetailsPOJO.getUid()).setValue(myRideDetailsPOJO);
                     Log.d("rew","Data submitted successfully");
                     Intent intent = getActivity().getIntent();
                     getActivity().finish();
@@ -194,7 +205,7 @@ public class AddTripFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                if(dataSnapshot.getChildrenCount()>0){
+                if(dataSnapshot.getChildrenCount()>0 && getActivity()!=null){
                     Intent intent = getActivity().getIntent();
                     getActivity().finish();
                     startActivity(intent);

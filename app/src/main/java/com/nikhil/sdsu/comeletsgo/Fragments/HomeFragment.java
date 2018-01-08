@@ -110,9 +110,12 @@ public class HomeFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew","in on data change home fragment");
-                Toast.makeText(getContext(), "In OnDataChange",
-                        Toast.LENGTH_SHORT).show();
-                tripDataList.clear();
+                if(getContext()!=null){
+                    Toast.makeText(getContext(), "Fetching data",
+                            Toast.LENGTH_SHORT).show();
+                    tripDataList.clear();
+                }
+
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " list items in home fragment");
 
                 for (DataSnapshot msgSnapshot : dataSnapshot.getChildren()) {
@@ -128,7 +131,7 @@ public class HomeFragment extends Fragment {
                 }
                 if (listadapter != null) {
                     listadapter.notifyDataSetChanged();
-                    //progressDialog.dismiss();
+                    progressDialog.dismiss();
                 }
                 progressDialog.dismiss();
                 Log.d("rew","No Data yet");

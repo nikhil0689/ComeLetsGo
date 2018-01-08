@@ -23,11 +23,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Helpers.RequestsAdapter;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
+import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.RequestDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class TripDetailsActivity extends AppCompatActivity {
     private TextView source,destination,date,time,seats,poster,posterContact,car,carColor,license;
@@ -35,6 +41,9 @@ public class TripDetailsActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
     private String requestorName="";
+    private String requestorContact="";
+    List<String> joineeList = new ArrayList<>();
+    private String uid;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +51,7 @@ public class TripDetailsActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Bundle intent = getIntent().getExtras();
-        AddTripDetailsPOJO addTripDetails = (AddTripDetailsPOJO) intent.getSerializable("tripDetailsFromPoster");
+        final AddTripDetailsPOJO addTripDetails = (AddTripDetailsPOJO) intent.getSerializable("tripDetailsFromPoster");
         Log.d("rew","Contact from Poster: "+addTripDetails.getContact());
         final String phNo = auth.getCurrentUser().getDisplayName().toString();
         Log.d("rew","phno: "+phNo);
@@ -66,17 +75,20 @@ public class TripDetailsActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildren() + " trips available in tripdetails activity");
                 AddTripDetailsPOJO addTripDetailsPOJO = dataSnapshot.getValue(AddTripDetailsPOJO.class);
-                source.setText(addTripDetailsPOJO.getSource());
-                destination.setText(addTripDetailsPOJO.getDestination());
-                date.setText(addTripDetailsPOJO.getDate());
-                time.setText(addTripDetailsPOJO.getTime());
-                seats.setText(""+addTripDetailsPOJO.getSeatsAvailable());
-                poster.setText(addTripDetailsPOJO.getPostedBy());
+                if(addTripDetailsPOJO!=null){
+                    source.setText(addTripDetailsPOJO.getSource());
+                    destination.setText(addTripDetailsPOJO.getDestination());
+                    date.setText(addTripDetailsPOJO.getDate());
+                    time.setText(addTripDetailsPOJO.getTime());
+                    seats.setText(""+addTripDetailsPOJO.getSeatsAvailable());
+                    poster.setText(addTripDetailsPOJO.getPostedBy());
+                    uid = addTripDetailsPOJO.getUid();
+                    Log.d("rew","contact from cloud: "+posterContact.getText().toString());
+                    car.setText(addTripDetailsPOJO.getCar());
+                    carColor.setText(addTripDetailsPOJO.getCarColor());
+                    license.setText(addTripDetailsPOJO.getLicense());
+                }
 
-                Log.d("rew","contact from cloud: "+posterContact.getText().toString());
-                car.setText(addTripDetailsPOJO.getCar());
-                carColor.setText(addTripDetailsPOJO.getCarColor());
-                license.setText(addTripDetailsPOJO.getLicense());
             }
 
             @Override
@@ -84,7 +96,7 @@ public class TripDetailsActivity extends AppCompatActivity {
                 Log.d("rew","data error in trip details activity: "+databaseError);
             }
         };
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference people = database.getReference("trip_details").child(posterContact.getText().toString());
         people.addValueEventListener(valueEventListener);
 
@@ -110,12 +122,45 @@ public class TripDetailsActivity extends AppCompatActivity {
                     alert.setMessage("Delete Ride");
                     alert.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+                        public void onClick(final DialogInterface dialogInterface, int n) {
+                            for(int i=0;i<joineeList.size();i++) {
+                                ValueEventListener valueEventListener1 = new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " trips available");
+                                        for(DataSnapshot snapshot:dataSnapshot.getChildren()){
+                                            Log.d("rew", "key: " + snapshot.getKey());
+                                            Log.d("rew", "value: " + snapshot.getValue());
+                                            DatabaseReference ref = snapshot.getRef();
+                                            if(snapshot.getValue().equals(uid)){
+                                                Log.d("rew","reference: "+ref);
+                                                Log.d("rew","reference key: "+ref.getKey());
+                                                ref.removeValue();
+                                            }
+                                        }
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        Log.d("rew","database error: "+databaseError);
+                                    }
+                                };
+                                FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+                                DatabaseReference people1 = database1.getReference("current_rides").child(joineeList.get(i));
+                                people1.addValueEventListener(valueEventListener1);
+                            }
+                            try {
+                                Log.d("rew","delay");
+                                TimeUnit.SECONDS.sleep(2);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                             mDatabase.child("requests").child(posterContact.getText().toString()).removeValue();
                             mDatabase.child("trip_details").child(posterContact.getText().toString()).removeValue();
+                            mDatabase.child("my_rides").child(uid).removeValue();
                             dialogInterface.dismiss();
                             finish();
                         }
+
                     });
                     alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
 
@@ -147,6 +192,7 @@ public class TripDetailsActivity extends AppCompatActivity {
                     if (dataSnapshot.getChildrenCount() > 0) {
                         SignUpDetailsPOJO signUpDetailsPOJO = dataSnapshot.getValue(SignUpDetailsPOJO.class);
                         requestorName = signUpDetailsPOJO.getName();
+                        requestorContact = signUpDetailsPOJO.getContact();
                         Log.d("rew", requestorName);
                     } else {
                         Log.d("rew","No Data yet");
@@ -190,18 +236,20 @@ public class TripDetailsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildren() + " trips available in tripdetails activity");
-                //if (dataSnapshot.getChildrenCount() > 0) {
+                LinearLayout linearLayout = findViewById(R.id.text_programatically);
+                TextView passengers1 = new TextView(TripDetailsActivity.this);
+                passengers1.setText("People in the Ride");
+                passengers1.setGravity(Gravity.CENTER);
+                linearLayout.addView(passengers1);
+                joineeList.add(posterContact.getText().toString());
                     for (DataSnapshot msgSnapshot : dataSnapshot.getChildren()) {
                         RequestDetailsPOJO requestDetailsPOJO = msgSnapshot.getValue(RequestDetailsPOJO.class);
                         if(requestDetailsPOJO.isApprovalStatus()){
-                            Log.d("rew","Approved for: "+requestDetailsPOJO.getRequestorContact());
-                            LinearLayout linearLayout = findViewById(R.id.text_programatically);
-                            TextView passengers1 = new TextView(TripDetailsActivity.this);
-                            passengers1.setText("People in the Ride");
-                            passengers1.setGravity(Gravity.CENTER);
-                            linearLayout.addView(passengers1);
+                            requestorContact = requestDetailsPOJO.getRequestorContact();
+                            Log.d("rew","Approved for: "+requestorContact);
                             TextView passengers = new TextView(TripDetailsActivity.this);
                             passengers.setText(requestDetailsPOJO.getRequestorName());
+                            joineeList.add(requestDetailsPOJO.getRequestorContact());
                             passengers.setGravity(Gravity.CENTER);
                             passengers.setTypeface(Typeface.DEFAULT_BOLD);
                             linearLayout.addView(passengers);
@@ -211,9 +259,6 @@ public class TripDetailsActivity extends AppCompatActivity {
                         }
                         Log.d("rew", requestDetailsPOJO.getRequestorName());
                     }
-                /*} else {
-                    Log.d("rew","No Data yet");
-                }*/
             }
 
             @Override

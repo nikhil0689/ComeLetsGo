@@ -2,12 +2,10 @@ package com.nikhil.sdsu.comeletsgo.Fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,17 +21,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.nikhil.sdsu.comeletsgo.Activities.MainActivity;
-import com.nikhil.sdsu.comeletsgo.Activities.TripDetailsActivity;
 import com.nikhil.sdsu.comeletsgo.Helpers.RequestsAdapter;
-import com.nikhil.sdsu.comeletsgo.Helpers.TripDetailsAdapter;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
+import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.RequestDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -51,13 +49,15 @@ public class RequestsFragment extends Fragment {
     private ListView requestsListView;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
+    private String uid = "";
+    private String authContact;
     RequestsAdapter listadapter;
     List<RequestDetailsPOJO> requestList = new ArrayList<>();
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private int seatsAvailable;
-    private String posterContact="";
+    private String posterContact,posterName,source,destination,date,time;
     private OnFragmentInteractionListener mListener;
 
     public RequestsFragment() {
@@ -97,12 +97,15 @@ public class RequestsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_requests, container, false);
         auth = FirebaseAuth.getInstance();
+        final String phNo = auth.getCurrentUser().getDisplayName().toString();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Log.d("rew","in oncreate view");
         requestsListView = view.findViewById(R.id.requests_list_view);
-        checkForMyProfile();
         checkNumberOfSeats();
-        final String phNo = auth.getCurrentUser().getDisplayName().toString();
+        return view;
+    }
+
+    private void getRequestData(final String phNo) {
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -132,7 +135,7 @@ public class RequestsFragment extends Fragment {
                     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                         final RequestDetailsPOJO requestDetailsPOJO = (RequestDetailsPOJO) adapterView.getItemAtPosition(i);
                         final String requestorContact = ((RequestDetailsPOJO) adapterView.getItemAtPosition(i)).getRequestorContact();
-                        if(requestDetailsPOJO.isApprovalStatus() == false && seatsAvailable > 0){
+                        if(!requestDetailsPOJO.isApprovalStatus() && seatsAvailable > 0){
                             AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
                             alert.setTitle("Add Passenger");
                             alert.setMessage("Accept");
@@ -145,8 +148,15 @@ public class RequestsFragment extends Fragment {
                                                     .getDisplayName())
                                             .child(requestorContact).setValue(requestDetailsPOJO);
                                     seatsAvailable = seatsAvailable-1;
+                                    Map map = new HashMap();
+                                    map.put(requestorContact,requestDetailsPOJO.getRequestorName());
+                                    mDatabase.child("my_rides").child(uid).getRef().child("joinee").updateChildren(map);
                                     mDatabase.child("trip_details")
                                             .child(phNo).child("seatsAvailable").setValue(seatsAvailable);
+                                    Map map2 = new HashMap();
+                                    String key = mDatabase.child("current_rides").child(requestorContact).push().getKey();
+                                    map2.put(key,uid);
+                                    mDatabase.child("current_rides").child(requestorContact).updateChildren(map2);
                                     listadapter.notifyDataSetChanged();
                                     dialog.dismiss();
                                 }
@@ -177,6 +187,7 @@ public class RequestsFragment extends Fragment {
                                     seatsAvailable = seatsAvailable+1;
                                     mDatabase.child("trip_details")
                                             .child(phNo).child("seatsAvailable").setValue(seatsAvailable);
+                                    mDatabase.child("my_rides").child(uid).child("joinee").child(requestorContact).removeValue();
                                     listadapter.notifyDataSetChanged();
                                     dialog.dismiss();
                                 }
@@ -207,7 +218,6 @@ public class RequestsFragment extends Fragment {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference people = database.getReference("requests").child(auth.getCurrentUser().getDisplayName().toString());
         people.addValueEventListener(valueEventListener);
-        return view;
     }
 
     private void checkNumberOfSeats() {
@@ -218,7 +228,15 @@ public class RequestsFragment extends Fragment {
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
                 if(dataSnapshot.getChildrenCount()!=0){
                     final AddTripDetailsPOJO addTripDetailsPOJO = dataSnapshot.getValue(AddTripDetailsPOJO.class);
+                    posterName = addTripDetailsPOJO.getPostedBy();
+                    posterContact = addTripDetailsPOJO.getContact();
+                    source = addTripDetailsPOJO.getSource();
+                    destination = addTripDetailsPOJO.getDestination();
+                    date = addTripDetailsPOJO.getDate();
+                    time = addTripDetailsPOJO.getTime();
                     seatsAvailable = addTripDetailsPOJO.getSeatsAvailable();
+                    uid = addTripDetailsPOJO.getUid();
+                    getRequestData(phNo);
                     if(getContext()!=null){
                         Toast.makeText(getContext(),"Seats Available: "+seatsAvailable,Toast.LENGTH_SHORT).show();
                     }
@@ -239,28 +257,6 @@ public class RequestsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private void checkForMyProfile() {
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
-        ValueEventListener valueEventListener1 = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                if(dataSnapshot.getChildrenCount()<1){
-                    Fragment updateProfileFragment = new UpdateProfileFragment();
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
-                    fragmentTransaction.commitAllowingStateLoss();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
-        people1.addValueEventListener(valueEventListener1);
-    }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {

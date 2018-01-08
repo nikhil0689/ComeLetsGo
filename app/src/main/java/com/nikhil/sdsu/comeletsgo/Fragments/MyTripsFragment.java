@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -17,7 +18,17 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Helpers.MyRidesListAdapter;
+import com.nikhil.sdsu.comeletsgo.Helpers.RequestsAdapter;
+import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
+import com.nikhil.sdsu.comeletsgo.Pojo.RequestDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,10 +44,13 @@ public class MyTripsFragment extends Fragment {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private FirebaseAuth auth;
+    List<String> uids = new ArrayList<>();
+    List<MyRideDetailsPOJO> myRideDetailsList = new ArrayList<>();
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    private ListView myRidesListView;
+    MyRidesListAdapter listadapter;
     private OnFragmentInteractionListener mListener;
 
     public MyTripsFragment() {
@@ -76,16 +90,81 @@ public class MyTripsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_my_trips, container, false);
         auth = FirebaseAuth.getInstance();
+        myRidesListView = view.findViewById(R.id.my_rides_list_view);
+        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        checkForMyProfile(phNo);
+        uids = getAllUidsFromCurrentRides(phNo);
+
         return view;
+    }
+
+    private List getAllUidsFromCurrentRides(final String phNo) {
+        ValueEventListener valueEventListener1 = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                myRideDetailsList.clear();
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                    Log.d("rew","snapshot uid value: "+snapshot.getValue());
+                    uids.add(snapshot.getValue().toString());
+                }
+                Log.d("rew","uid size: "+uids.size());
+                if(uids!=null){
+                    final Map<String,String> map = new HashMap<>();
+                    for(int i=0;i<uids.size();i++){
+                        ValueEventListener valueEventListener = new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                                if (dataSnapshot.getChildrenCount() > 0) {
+                                    MyRideDetailsPOJO myRideDetailsPOJO = dataSnapshot.getValue(MyRideDetailsPOJO.class);
+                                    Log.d("rew", "joinee map size: " + myRideDetailsPOJO.getJoinee().size());
+                                    int mapSize = myRideDetailsPOJO.getJoinee().size();
+                                    Log.d("rew", "joinee map key value: " + myRideDetailsPOJO.getJoinee().values());
+                                    myRideDetailsList.add(myRideDetailsPOJO);
+                                    Collections.reverse(myRideDetailsList);
+                                    if(getActivity() != null){
+                                        listadapter = new MyRidesListAdapter(getActivity(), 0, myRideDetailsList);
+                                        myRidesListView.setAdapter(listadapter);
+                                    }
+                                }else {
+                                    if (listadapter != null) {
+                                        listadapter.notifyDataSetChanged();
+                                    }
+                                    Log.d("rew","No Data yet");
+                                }
+
+
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        };
+                        FirebaseDatabase database = FirebaseDatabase.getInstance();
+                        DatabaseReference people = database.getReference("my_rides").child(uids.get(i));
+                        people.addValueEventListener(valueEventListener);
+                    }
+
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
+        DatabaseReference people1 = database1.getReference("current_rides").child(phNo);
+        people1.addValueEventListener(valueEventListener1);
+        return uids;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        checkForMyProfile();
+
     }
-    private void checkForMyProfile() {
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
+    private void checkForMyProfile(String phNo) {
         ValueEventListener valueEventListener1 = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

@@ -25,6 +25,7 @@ import com.nikhil.sdsu.comeletsgo.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class UpdateRideActivity extends AppCompatActivity {
@@ -53,6 +54,8 @@ public class UpdateRideActivity extends AppCompatActivity {
         back = findViewById(R.id.update_trip_back_button);
         update = findViewById(R.id.update_trip_submit);
         contact = auth.getCurrentUser().getDisplayName().toString();
+        Date currentDate = Calendar.getInstance().getTime();
+
         selectDate();
         selectTime();
         ValueEventListener valueEventListener = new ValueEventListener() {

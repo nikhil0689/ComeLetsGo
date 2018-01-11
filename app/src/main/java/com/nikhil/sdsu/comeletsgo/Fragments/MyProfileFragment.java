@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
@@ -34,7 +35,7 @@ import java.util.List;
  * Use the {@link MyProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MyProfileFragment extends Fragment {
+public class MyProfileFragment extends Fragment implements ComeLetsGoConstants{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -49,6 +50,7 @@ public class MyProfileFragment extends Fragment {
     List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     private OnFragmentInteractionListener mListener;
     private DatabaseReference mDatabase;
+    private String email,myPhoneNo;
 
     public MyProfileFragment() {
         // Required empty public constructor
@@ -96,10 +98,13 @@ public class MyProfileFragment extends Fragment {
         license = view.findViewById(R.id.my_profile_license);
         update = view.findViewById(R.id.my_profile_update);
         back = view.findViewById(R.id.my_profile_back);
-        String email = auth.getCurrentUser().getEmail().toString();
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
+        if(auth.getCurrentUser()!=null){
+            email = auth.getCurrentUser().getEmail();
+            myPhoneNo = auth.getCurrentUser().getDisplayName();
+        }
+
         emailId.setText(email);
-        contact.setText(phNo);
+        contact.setText(myPhoneNo);
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -120,7 +125,7 @@ public class MyProfileFragment extends Fragment {
 
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference people = database.getReference("personal_data").child(contact.getText().toString());
+        DatabaseReference people = database.getReference(FIREBASE_PERSONAL_DATA).child(contact.getText().toString());
         people.addValueEventListener(valueEventListener);
         return view;
     }

@@ -18,7 +18,7 @@ import java.util.List;
  * Created by nikhilc on 12/28/2017.
  */
 
-public class TripDetailsAdapter extends ArrayAdapter {
+public class TripDetailsAdapter extends ArrayAdapter implements ComeLetsGoConstants{
     private Activity context;
     private List<AddTripDetailsPOJO> userProperties;
     public TripDetailsAdapter(Activity context, int resource, List list) {
@@ -42,16 +42,16 @@ public class TripDetailsAdapter extends ArrayAdapter {
         TextView car = view.findViewById(R.id.trip_list_car);
         TextView color = view.findViewById(R.id.trip_list_color);
         TextView license = view.findViewById(R.id.trip_list_license);
-        source.setText(""+userProperties.get(position).getSource().concat(" to "));
-        destination.setText(""+userProperties.get(position).getDestination());
-        date.setText(""+userProperties.get(position).getDate().concat(" - "));
-        time.setText(""+userProperties.get(position).getTime());
-        seats.setText("Seats Available: "+userProperties.get(position).getSeatsAvailable());
-        name.setText("Posted By: "+userProperties.get(position).getPostedBy());
-        contact.setText(" Contact: "+userProperties.get(position).getContact());
-        car.setText(" Car: "+userProperties.get(position).getCar());
-        color.setText(" Color: "+userProperties.get(position).getCarColor());
-        license.setText(" License: "+userProperties.get(position).getLicense());
+        source.setText(userProperties.get(position).getSource());
+        destination.setText(userProperties.get(position).getDestination());
+        date.setText(userProperties.get(position).getDate());
+        time.setText(userProperties.get(position).getTime());
+        seats.setText(String.valueOf(userProperties.get(position).getSeatsAvailable()));
+        name.setText(userProperties.get(position).getPostedBy());
+        contact.setText(userProperties.get(position).getContact());
+        car.setText(userProperties.get(position).getCar());
+        color.setText(userProperties.get(position).getCarColor());
+        license.setText(userProperties.get(position).getLicense());
         return view;
     }
 }

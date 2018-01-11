@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -27,10 +29,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Activities.LoginActivity;
 import com.nikhil.sdsu.comeletsgo.Activities.SignUpActivity;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -41,7 +48,7 @@ import java.util.List;
  * Use the {@link UpdateProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class UpdateProfileFragment extends Fragment {
+public class UpdateProfileFragment extends Fragment implements ComeLetsGoConstants{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -57,7 +64,7 @@ public class UpdateProfileFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
-    String phNo="";
+    String myPhoneNo="",myEmail="";
     public UpdateProfileFragment() {
         // Required empty public constructor
     }
@@ -103,10 +110,13 @@ public class UpdateProfileFragment extends Fragment {
         color = view.findViewById(R.id.update_profile_car_color);
         license = view.findViewById(R.id.update_profile_license);
         update = view.findViewById(R.id.update_profile_update);
-        String email = auth.getCurrentUser().getEmail().toString();
-        phNo = auth.getCurrentUser().getDisplayName().toString();
-        emailId.setText(email);
-        contact.setText(phNo);
+        if(auth.getCurrentUser()!=null){
+            myEmail = auth.getCurrentUser().getEmail();
+            myPhoneNo = auth.getCurrentUser().getDisplayName();
+        }
+        emailId.setText(myEmail);
+        contact.setText(myPhoneNo);
+
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -127,7 +137,7 @@ public class UpdateProfileFragment extends Fragment {
 
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference people = database.getReference("personal_data").child(contact.getText().toString());
+        DatabaseReference people = database.getReference(FIREBASE_PERSONAL_DATA).child(contact.getText().toString());
         people.addValueEventListener(valueEventListener);
         return view;
     }
@@ -138,27 +148,54 @@ public class UpdateProfileFragment extends Fragment {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.d("rew","back button clicked");
-                SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
-                signUpDetailsPOJO.setContact(contact.getText().toString().trim());
-                signUpDetailsPOJO.setCarName(car.getText().toString().trim());
-                signUpDetailsPOJO.setCarColor(color.getText().toString().trim());
-                signUpDetailsPOJO.setCarLicence(license.getText().toString().trim());
-                signUpDetailsPOJO.setEmailId(emailId.getText().toString().trim());
-                signUpDetailsPOJO.setName(name.getText().toString().trim());
-                //boolean updated = databaseHelper.updateProfileData(signUpDetailsPOJO);
-                try{
-                    mDatabase.child("personal_data").child(phNo).removeValue();
-                    mDatabase.child("personal_data").child(contact.getText().toString()).setValue(signUpDetailsPOJO);
-                    Log.d("rew","Data submitted successfully");
-                    Intent intent = getActivity().getIntent();
-                    getActivity().finish();
-                    startActivity(intent);
-                }catch(Exception e){
-                    Log.d("rew","Exception: "+e);
+                if(validInput()){
+                    Log.d("rew","update button clicked");
+                    SignUpDetailsPOJO signUpDetailsPOJO = new SignUpDetailsPOJO();
+                    signUpDetailsPOJO.setContact(contact.getText().toString().trim());
+                    signUpDetailsPOJO.setCarName(car.getText().toString().trim());
+                    signUpDetailsPOJO.setCarColor(color.getText().toString().trim());
+                    signUpDetailsPOJO.setCarLicence(license.getText().toString().trim());
+                    signUpDetailsPOJO.setEmailId(emailId.getText().toString().trim());
+                    signUpDetailsPOJO.setName(name.getText().toString().trim());
+                    //boolean updated = databaseHelper.updateProfileData(signUpDetailsPOJO);
+                    try{
+                        mDatabase.child(FIREBASE_PERSONAL_DATA).child(myPhoneNo).removeValue();
+                        mDatabase.child(FIREBASE_PERSONAL_DATA).child(contact.getText().toString()).setValue(signUpDetailsPOJO);
+                        Log.d("rew","Data submitted successfully");
+                        Intent intent = getActivity().getIntent();
+                        getActivity().finish();
+                        startActivity(intent);
+                    }catch(Exception e){
+                        Log.d("rew","Exception: "+e);
+                    }
+                }else{
+                    Toast.makeText(getContext(), VALIDATION_FAILURE, Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
+    }
+
+    private boolean validInput() {
+        boolean dataValid = true;
+        if (TextUtils.isEmpty(name.getText().toString())) {
+            name.setError(ENTER_NAME);
+            dataValid = false;
+        }
+        if (TextUtils.isEmpty(car.getText().toString())) {
+            car.setError(ENTER_CAR);
+            dataValid = false;
+        }
+
+        if (TextUtils.isEmpty(color.getText().toString())) {
+            color.setError(ENTER_CAR_COLOR);
+            dataValid = false;
+        }
+        if (TextUtils.isEmpty(license.getText().toString())) {
+            license.setError(ENTER_CAR_LICENSE);
+            dataValid = false;
+        }
+        return dataValid;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

@@ -8,7 +8,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         tools:context="com.nikhil.sdsu.comeletsgo.Activities.UpdateRideActivity"
         android:orientation="vertical">
 
@@ -20,7 +20,7 @@
             android:background="#f0f0f4"
             android:drawablePadding="10dp"
             android:ems="10"
-            android:hint="From"
+            android:hint="@string/from"
             android:inputType="textCapWords"
             android:layout_margin="10dp"
             android:padding="10dp"
@@ -33,7 +33,7 @@
             android:background="#f0f0f4"
             android:drawablePadding="10dp"
             android:ems="10"
-            android:hint="To"
+            android:hint="@string/to"
             android:inputType="textCapWords"
             android:layout_margin="10dp"
             android:padding="10dp"
@@ -58,7 +58,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
-                android:text="SELECT DATE"
+                android:text="@string/select_date"
                 android:id="@+id/update_trip_date_button"/>
         </LinearLayout>
         <LinearLayout
@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.1"
-                android:text="SELECT TIME"
+                android:text="@string/select_time"
                 android:id="@+id/update_trip_time_button"/>
         </LinearLayout>
         <EditText
@@ -92,7 +92,7 @@
             android:background="#f0f0f4"
             android:drawablePadding="10dp"
             android:ems="10"
-            android:hint="Number of Seats"
+            android:hint="@string/seats_available"
             android:inputType="number"
             android:layout_margin="10dp"
             android:padding="10dp"
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="14dp"
                 android:layout_weight="1"
-                android:text="Back"
+                android:text="@string/back"
                 tools:ignore="ButtonStyle" />
 
             <Button
@@ -120,7 +120,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
                 android:layout_weight="1"
-                android:text="Update"
+                android:text="@string/update"
                 tools:ignore="ButtonStyle" />
         </LinearLayout>
     </LinearLayout>

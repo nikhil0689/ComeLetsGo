@@ -12,13 +12,15 @@ import android.widget.TextView;
 import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 /**
  * Created by nikhilc on 1/8/2018.
  */
 
-public class MyRidesListAdapter extends ArrayAdapter {
+public class MyRidesListAdapter extends ArrayAdapter implements ComeLetsGoConstants{
 
     private Activity context;
     private List<MyRideDetailsPOJO> userProperties;
@@ -37,10 +39,19 @@ public class MyRidesListAdapter extends ArrayAdapter {
         TextView destination = view.findViewById(R.id.my_ride_destination);
         TextView date = view.findViewById(R.id.my_ride_date);
         TextView time = view.findViewById(R.id.my_ride_time);
+        TextView uid = view.findViewById(R.id.my_ride_uid);
+        TextView status = view.findViewById(R.id.my_ride_status);
         source.setText(userProperties.get(position).getSource());
         destination.setText(userProperties.get(position).getDestination());
         date.setText(userProperties.get(position).getDate());
         time.setText(userProperties.get(position).getTime());
+        uid.setText(userProperties.get(position).getUid());
+        if(userProperties.get(position).isApprovalStatus()){
+            status.setText(RIDE_STATUS_COMPLETED);
+        }else{
+            status.setText(RIDE_SCHEDULED);
+        }
+
         return view;
     }
 

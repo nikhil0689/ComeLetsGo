@@ -12,14 +12,14 @@
         android:gravity="center"
         android:layout_margin="10dp"
         android:orientation="vertical"
-        tools:context="com.nikhil.sdsu.comeletsgo.Activities.TripDetailsActivity">
+        tools:context="com.nikhil.sdsu.comeletsgo.Activities.RideHistoryDetailsActivity">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
             <TextView
-                android:id="@+id/trip_source"
+                android:id="@+id/ride_history_source"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
@@ -29,38 +29,10 @@
                 android:padding="10dp"
                 android:src="@drawable/arrow_right_bold"/>
             <TextView
-                android:id="@+id/trip_destination"
+                android:id="@+id/ride_history_destination"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Large" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <TextView
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:background="#f0f0f4"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:padding="10dp"
-                android:textColor="#000"
-                android:text="@string/seats_available"/>
-            <TextView
-                android:id="@+id/trip_seats"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:background="#f0f0f4"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:padding="10dp"
-                android:textColor="#000"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -80,7 +52,7 @@
                 android:textColor="#000"
                 android:text="@string/date"/>
             <TextView
-                android:id="@+id/trip_date"
+                android:id="@+id/ride_history_date"
                 android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -110,7 +82,7 @@
                 android:textColor="#000"
                 android:text="@string/time"/>
             <TextView
-                android:id="@+id/trip_time"
+                android:id="@+id/ride_history_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -122,9 +94,10 @@
                 android:textColor="#000"/>
         </LinearLayout>
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_weight="0.5"
             android:orientation="horizontal">
             <TextView
                 android:gravity="center"
@@ -138,7 +111,7 @@
                 android:textColor="#000"
                 android:text="@string/posted_by"/>
             <TextView
-                android:id="@+id/trip_poster"
+                android:id="@+id/ride_history_posted_by"
                 android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -150,9 +123,10 @@
                 android:textColor="#000"/>
         </LinearLayout>
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_weight="0.5"
             android:orientation="horizontal">
             <TextView
                 android:gravity="center"
@@ -166,7 +140,7 @@
                 android:textColor="#000"
                 android:text="@string/contact"/>
             <TextView
-                android:id="@+id/trip_contact"
+                android:id="@+id/ride_history_poster_contact"
                 android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -177,11 +151,11 @@
                 android:padding="10dp"
                 android:textColor="#000"/>
         </LinearLayout>
-
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
+            android:layout_weight="0.5"
             android:orientation="horizontal">
             <TextView
                 android:gravity="center"
@@ -193,9 +167,9 @@
                 android:ems="10"
                 android:padding="10dp"
                 android:textColor="#000"
-                android:text="@string/car"/>
+                android:text="@string/people_in_the_ride"/>
             <TextView
-                android:id="@+id/trip_car"
+                android:id="@+id/ride_history_people"
                 android:gravity="center"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -206,130 +180,23 @@
                 android:padding="10dp"
                 android:textColor="#000"/>
         </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <TextView
+            android:id="@+id/ride_history_status"
             android:gravity="center"
-            android:orientation="horizontal">
-            <TextView
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:background="#f0f0f4"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:padding="10dp"
-                android:textColor="#000"
-                android:text="@string/color"/>
-            <TextView
-                android:id="@+id/trip_car_color"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:background="#f0f0f4"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:padding="10dp"
-                android:textColor="#000"/>
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="horizontal">
-            <TextView
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:background="#f0f0f4"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:padding="10dp"
-                android:textColor="#000"
-                android:text="@string/registration_no"/>
-            <TextView
-                android:id="@+id/trip_car_license"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:background="#f0f0f4"
-                android:drawablePadding="8dp"
-                android:ems="10"
-                android:padding="10dp"
-                android:textColor="#000"/>
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:id="@+id/text_programatically"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="10dp"
-            android:gravity="center"
-            android:orientation="vertical">
-         </LinearLayout>
+            android:layout_margin="12dp"
+            android:drawablePadding="8dp"
+            android:ems="10"
+            android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"
+            android:padding="14dp"
+            android:textColor="#000"/>
         <Button
-            android:id="@+id/trip_complete_button"
+            android:id="@+id/ride_history_back"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:layout_weight="1"
-            android:text="@string/complete"
-            android:visibility="gone"
-            tools:ignore="ButtonStyle" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/trip_cancel_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="14dp"
-                android:layout_weight="1"
-                android:text="@string/back"
-                tools:ignore="ButtonStyle" />
-
-            <Button
-                android:id="@+id/trip_join_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:text="@string/join"
-                tools:ignore="ButtonStyle" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/trip_update_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="14dp"
-                android:layout_weight="1"
-                android:text="@string/update"
-                tools:ignore="ButtonStyle" />
-
-            <Button
-                android:id="@+id/trip_delete_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="14dp"
-                android:layout_weight="1"
-                android:text="@string/delete"
-                tools:ignore="ButtonStyle" />
-        </LinearLayout>
+            android:layout_margin="15dp"
+            android:text="@string/back"/>
 
     </LinearLayout>
 </ScrollView>

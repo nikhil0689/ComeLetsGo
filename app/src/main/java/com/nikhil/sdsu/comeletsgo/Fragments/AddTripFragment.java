@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -26,14 +28,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Activities.UpdateRideActivity;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
+import com.nikhil.sdsu.comeletsgo.Helpers.Utilities;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -43,7 +51,7 @@ import java.util.List;
  * Use the {@link AddTripFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AddTripFragment extends Fragment {
+public class AddTripFragment extends Fragment implements ComeLetsGoConstants {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -95,6 +103,13 @@ public class AddTripFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_add_trip,null);
         auth = FirebaseAuth.getInstance();
+        if(auth.getCurrentUser()!=null){
+            contact = auth.getCurrentUser().getDisplayName();
+            Log.d("rew","contact from fire: "+contact);
+        }
+        Utilities utilities = new Utilities(getFragmentManager());
+        utilities.checkProfile();
+        utilities.checkForExistingRide(getActivity());
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Log.d("rew","firebase ref: "+mDatabase.toString());
         source = view.findViewById(R.id.add_trip_from);
@@ -109,11 +124,11 @@ public class AddTripFragment extends Fragment {
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                source.setText("");
-                destination.setText("");
-                date.setText("");
-                time.setText("");
-                seats.setText("");
+                source.setText(EMPTY_STRING);
+                destination.setText(EMPTY_STRING);
+                date.setText(EMPTY_STRING);
+                time.setText(EMPTY_STRING);
+                seats.setText(EMPTY_STRING);
             }
         });
         return view;
@@ -131,24 +146,18 @@ public class AddTripFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         selectDate();
         selectTime();
-        if(auth.getCurrentUser() != null){
-            Log.d("rew","Current User: "+auth.getCurrentUser().getDisplayName().toString());
-            contact = auth.getCurrentUser().getDisplayName().toString();
-        }
-        checkForMyProfile();
         checkForExistingRide();
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                if(dataSnapshot.getChildrenCount()>0){
-                    SignUpDetailsPOJO signUpDetailsPOJO = dataSnapshot.getValue(SignUpDetailsPOJO.class);
+                SignUpDetailsPOJO signUpDetailsPOJO = dataSnapshot.getValue(SignUpDetailsPOJO.class);
+                if(signUpDetailsPOJO!=null){
                     name = signUpDetailsPOJO.getName();
                     car = signUpDetailsPOJO.getCarName();
                     color = signUpDetailsPOJO.getCarColor();
                     license = signUpDetailsPOJO.getCarLicence();
                 }
-
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -157,50 +166,97 @@ public class AddTripFragment extends Fragment {
 
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference people = database.getReference("personal_data").child(contact);
+        DatabaseReference people = database.getReference(FIREBASE_PERSONAL_DATA).child(contact);
         people.addValueEventListener(valueEventListener);
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddTripDetailsPOJO addTripDetailsPOJO = new AddTripDetailsPOJO();
-                addTripDetailsPOJO.setSource(source.getText().toString().trim());
-                addTripDetailsPOJO.setDestination(destination.getText().toString().trim());
-                addTripDetailsPOJO.setDate(date.getText().toString().trim());
-                addTripDetailsPOJO.setTime(time.getText().toString().trim());
-                int noOfSeats = Integer.parseInt(seats.getText().toString());
-                addTripDetailsPOJO.setSeatsAvailable(noOfSeats);
-                addTripDetailsPOJO.setPostedBy(name);
-                addTripDetailsPOJO.setContact(contact);
-                addTripDetailsPOJO.setCar(car);
-                addTripDetailsPOJO.setCarColor(color);
-                addTripDetailsPOJO.setLicense(license);
-                addTripDetailsPOJO.setUid(mDatabase.child("trip_details").push().getKey());
+                if(validInput()){
+                    AddTripDetailsPOJO addTripDetailsPOJO = new AddTripDetailsPOJO();
+                    addTripDetailsPOJO.setSource(source.getText().toString().trim());
+                    addTripDetailsPOJO.setDestination(destination.getText().toString().trim());
+                    addTripDetailsPOJO.setDate(date.getText().toString().trim());
+                    addTripDetailsPOJO.setTime(time.getText().toString().trim());
+                    int noOfSeats = Integer.parseInt(seats.getText().toString());
+                    addTripDetailsPOJO.setSeatsAvailable(noOfSeats);
+                    addTripDetailsPOJO.setPostedBy(name);
+                    addTripDetailsPOJO.setContact(contact);
+                    addTripDetailsPOJO.setCar(car);
+                    addTripDetailsPOJO.setCarColor(color);
+                    addTripDetailsPOJO.setLicense(license);
+                    addTripDetailsPOJO.setUid(mDatabase.child(FIREBASE_TRIP_DETAILS).push().getKey());
 
-                MyRideDetailsPOJO myRideDetailsPOJO = new MyRideDetailsPOJO();
-                myRideDetailsPOJO.setSource(source.getText().toString().trim());
-                myRideDetailsPOJO.setDestination(destination.getText().toString().trim());
-                myRideDetailsPOJO.setTime(time.getText().toString().trim());
-                myRideDetailsPOJO.setDate(date.getText().toString().trim());
-                myRideDetailsPOJO.setPosterName(name);
-                myRideDetailsPOJO.setPosterContact(contact);
-                myRideDetailsPOJO.setApprovalStatus(true);
-                Log.d("rew","uid: "+addTripDetailsPOJO.getUid());
-                try{
-                    mDatabase.child("trip_details").child(contact).setValue(addTripDetailsPOJO);
-                    mDatabase.child("my_rides").child(addTripDetailsPOJO.getUid()).setValue(myRideDetailsPOJO);
-                    Log.d("rew","Data submitted successfully");
-                    Intent intent = getActivity().getIntent();
-                    getActivity().finish();
-                    startActivity(intent);
-                }catch(Exception e){
-                    Log.d("rew","Exception: "+e);
+                    MyRideDetailsPOJO myRideDetailsPOJO = new MyRideDetailsPOJO();
+                    myRideDetailsPOJO.setSource(source.getText().toString().trim());
+                    myRideDetailsPOJO.setDestination(destination.getText().toString().trim());
+                    myRideDetailsPOJO.setTime(time.getText().toString().trim());
+                    myRideDetailsPOJO.setDate(date.getText().toString().trim());
+                    myRideDetailsPOJO.setPosterName(name);
+                    myRideDetailsPOJO.setPosterContact(contact);
+                    myRideDetailsPOJO.setUid(addTripDetailsPOJO.getUid());
+                    myRideDetailsPOJO.setApprovalStatus(false);
+                    Log.d("rew","uid: "+addTripDetailsPOJO.getUid());
+                    try{
+                        mDatabase.child(FIREBASE_TRIP_DETAILS).child(contact).setValue(addTripDetailsPOJO);
+                        mDatabase.child(FIREBASE_MY_RIDES).child(addTripDetailsPOJO.getUid()).setValue(myRideDetailsPOJO);
+                        mDatabase.child(FIREBASE_CURRENT_RIDES).child(contact).push().setValue(addTripDetailsPOJO.getUid());
+                        Log.d("rew","Data submitted successfully");
+                        Intent intent = getActivity().getIntent();
+                        getActivity().finish();
+                        startActivity(intent);
+                    }catch(Exception e){
+                        Log.d("rew","Exception: "+e);
+                    }
+                }else{
+                    Toast.makeText(getContext(),VALIDATION_FAILURE,Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
     }
 
+    private boolean validInput() {
+        boolean dataValid = true;
+        if (TextUtils.isEmpty(source.getText().toString())) {
+            source.setError(ENTER_SOURCE);
+            dataValid = false;
+        }else if(TextUtils.isEmpty(destination.getText().toString())) {
+            destination.setError(ENTER_DESTINATION);
+            dataValid = false;
+        }else if(TextUtils.isEmpty(date.getText().toString())) {
+            date.setError(ENTER_DATE);
+            dataValid = false;
+        }else if(TextUtils.isEmpty(time.getText().toString())) {
+            time.setError(ENTER_TIME);
+            dataValid = false;
+        }else if(TextUtils.isEmpty(seats.getText().toString())) {
+            seats.setError(ENTER_SEATS);
+            dataValid = false;
+        }else if(!TextUtils.isEmpty(time.getText().toString()) && Integer.parseInt(seats.getText().toString())<1) {
+            seats.setError(SEATS_ZERO);
+            dataValid = false;
+        }
+        String dateString=date.getText().toString().concat(" ").concat(time.getText().toString());
+        DateFormat formatter ;
+        Date date ;
+        formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
+        try {
+            date = (Date) formatter.parse(dateString);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            Log.d("rew", "formatted time: " + date);
+            Log.d("rew", "current time: " + Calendar.getInstance().getTime());
+            if(date.before(Calendar.getInstance().getTime())){
+                Toast.makeText(getContext(),DATE_VALIDATION_FAILURE_TOAST,Toast.LENGTH_SHORT).show();
+                dataValid = false;
+            }
+        }catch (Exception e){
+            Log.d("rew","Exception: "+e);
+        }
+        return dataValid;
+    }
+
     private void checkForExistingRide() {
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
         ValueEventListener valueEventListener1 = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -217,30 +273,7 @@ public class AddTripFragment extends Fragment {
             }
         };
         FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("trip_details").child(phNo);
-        people1.addValueEventListener(valueEventListener1);
-    }
-
-    private void checkForMyProfile() {
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
-        ValueEventListener valueEventListener1 = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                if(dataSnapshot.getChildrenCount()<1){
-                    Fragment updateProfileFragment = new UpdateProfileFragment();
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
-                    fragmentTransaction.commitAllowingStateLoss();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
+        DatabaseReference people1 = database1.getReference(FIREBASE_TRIP_DETAILS).child(contact);
         people1.addValueEventListener(valueEventListener1);
     }
 
@@ -256,7 +289,8 @@ public class AddTripFragment extends Fragment {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay,
                                                   int minute) {
-                                time.setText(hourOfDay + ":" + minute);
+                                String timeFormat = hourOfDay + ":" + minute;
+                                time.setText(timeFormat);
                             }
                         }, mHour, mMinute, false);
                 timePickerDialog.show();
@@ -277,7 +311,8 @@ public class AddTripFragment extends Fragment {
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-                                date.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
+                                String dateFormat = (monthOfYear + 1) + "/" + dayOfMonth + "/" + year;
+                                date.setText(dateFormat);
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();

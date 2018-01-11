@@ -18,4 +18,32 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sign_in">Sign In</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign UP</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
+    <string name="posted_by">Posted By</string>
+    <string name="contact">Contact</string>
+    <string name="people_in_the_ride">People in the ride</string>
+    <string name="back">Back</string>
+    <string name="email_id">Email ID</string>
+    <string name="reset">Reset</string>
+    <string name="submit">Submit</string>
+    <string name="seats_available">Seats Available</string>
+    <string name="car">Car</string>
+    <string name="color">Color</string>
+    <string name="registration_no">Registration No.</string>
+    <string name="complete">Complete</string>
+    <string name="join">JOIN</string>
+    <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="select_date">SELECT DATE</string>
+    <string name="select_time">SELECT TIME</string>
+    <string name="name">Name</string>
+    <string name="car_color">Car Color</string>
+    <string name="update_your_profile">Update your Profile</string>
 </resources>

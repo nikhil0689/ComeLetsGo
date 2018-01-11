@@ -14,6 +14,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDa-0yhocTI9QGIRakOvT1wayJqXyN29Kg" />
+
         <activity android:name=".Activities.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,7 +28,8 @@
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.TripDetailsActivity" />
-        <activity android:name=".Activities.UpdateRideActivity"></activity>
+        <activity android:name=".Activities.UpdateRideActivity" />
+        <activity android:name=".Activities.RideHistoryDetailsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,6 @@
 package com.nikhil.sdsu.comeletsgo.Fragments;
 
+import android.app.FragmentManager;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -28,7 +29,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Activities.MainActivity;
 import com.nikhil.sdsu.comeletsgo.Activities.TripDetailsActivity;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Helpers.TripDetailsAdapter;
+import com.nikhil.sdsu.comeletsgo.Helpers.Utilities;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
@@ -45,7 +48,7 @@ import java.util.List;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements ComeLetsGoConstants{
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
@@ -95,13 +98,20 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         auth = FirebaseAuth.getInstance();
+        Utilities utilities = new Utilities(getFragmentManager());
+        utilities.checkProfile();
         mDatabase = FirebaseDatabase.getInstance().getReference();
         progressDialog = new ProgressDialog(getContext());
         Log.d("rew","inoncreate view");
         tripDetailsListView = view.findViewById(R.id.trip_list_home);
-        //checkForMyProfile();
         getRideDetailsOntoTheList();
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
     }
 
     private void getRideDetailsOntoTheList() {
@@ -111,13 +121,9 @@ public class HomeFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew","in on data change home fragment");
                 if(getContext()!=null){
-                    Toast.makeText(getContext(), "Fetching data",
-                            Toast.LENGTH_SHORT).show();
                     tripDataList.clear();
                 }
-
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " list items in home fragment");
-
                 for (DataSnapshot msgSnapshot : dataSnapshot.getChildren()) {
                     AddTripDetailsPOJO addTripDetailsPOJO = msgSnapshot.getValue(AddTripDetailsPOJO.class);
                     Log.d("rew", addTripDetailsPOJO.getUid());
@@ -135,14 +141,12 @@ public class HomeFragment extends Fragment {
                 }
                 progressDialog.dismiss();
                 Log.d("rew","No Data yet");
-
-
                 tripDetailsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                         Intent intent = new Intent(getActivity(), TripDetailsActivity.class);
                         AddTripDetailsPOJO addTripDetailsPOJO = (AddTripDetailsPOJO) adapterView.getItemAtPosition(position);
-                        intent.putExtra("tripDetailsFromPoster",addTripDetailsPOJO);
+                        intent.putExtra(TRIP_DETAILS_SERIALIZABLE,addTripDetailsPOJO);
                         startActivity(intent);
                     }
                 });
@@ -156,41 +160,11 @@ public class HomeFragment extends Fragment {
             }
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference people = database.getReference("trip_details");
+        DatabaseReference people = database.getReference(FIREBASE_TRIP_DETAILS);
         people.addValueEventListener(valueEventListener);
-        progressDialog.setMessage("Loading data");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setMessage(LOADING);
         progressDialog.show();
-    }
-
-    private void checkForMyProfile() {
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
-        ValueEventListener valueEventListener1 = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("rew", "in the personal details section: "+dataSnapshot.getChildrenCount());
-                if(dataSnapshot.getChildrenCount()<1){
-                    Fragment updateProfileFragment = new UpdateProfileFragment();
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
-                    fragmentTransaction.commitAllowingStateLoss();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
-        people1.addValueEventListener(valueEventListener1);
-
-
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        Log.d("rew","in on view created");
     }
 
     @Override

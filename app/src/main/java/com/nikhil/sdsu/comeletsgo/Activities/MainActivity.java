@@ -21,13 +21,13 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 import com.nikhil.sdsu.comeletsgo.Fragments.AddTripFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.HomeFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyProfileFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyTripsFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.RequestsFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.UpdateProfileFragment;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
@@ -37,7 +37,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         AddTripFragment.OnFragmentInteractionListener,MyTripsFragment.OnFragmentInteractionListener,
         MyProfileFragment.OnFragmentInteractionListener,RequestsFragment.OnFragmentInteractionListener,
-        UpdateProfileFragment.OnFragmentInteractionListener{
+        UpdateProfileFragment.OnFragmentInteractionListener,ComeLetsGoConstants{
     List<SignUpDetailsPOJO> userDetailsList = new ArrayList<>();
     private TextView navigation_header_caption;
     private FirebaseAuth auth;
@@ -50,12 +50,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
     // index to identify current nav menu item
     public static int navItemIndex = 0;
     // tags used to attach the fragments
-    private static final String TAG_HOME = "home";
-    private static final String TAG_ADD_TRIP = "add_trip";
-    private static final String TAG_MY_TRIPS = "my_trips";
-    private static final String TAG_MY_PROFILE = "my_profile";
-    private static final String TAG_REQUESTS = "requests";
-    private static final String TAG_LOG_OUT= "logout";
     public static String CURRENT_TAG = TAG_HOME;
 
     // flag to load home fragment when user presses back key
@@ -69,8 +63,12 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         setContentView(R.layout.activity_main);
         auth = FirebaseAuth.getInstance();
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
-        String email = auth.getCurrentUser().getEmail().toString();
-        String contact = auth.getCurrentUser().getDisplayName().toString();
+        String email="",contact="";
+        if(auth.getCurrentUser()!=null){
+            email = auth.getCurrentUser().getEmail();
+            contact = auth.getCurrentUser().getDisplayName();
+        }
+
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mHandler = new Handler();
@@ -104,21 +102,18 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
         }
     }
     private void loadHomeFragment() {
-        // selecting appropriate nav menu item
         selectNavMenu();
-        getSupportActionBar().setTitle(activityTitles[navItemIndex]);
-        // if user select the current navigation menu again, don't do anything
-        // just close the navigation drawer
+        if(getSupportActionBar()!=null){
+            getSupportActionBar().setTitle(activityTitles[navItemIndex]);
+        }
         if (getSupportFragmentManager().findFragmentByTag(CURRENT_TAG) != null) {
             drawer.closeDrawers();
-        // show or hide the fab button
             toggleFab();
             return;
         }
         Runnable mPendingRunnable = new Runnable() {
             @Override
             public void run() {
-                // update the main content by replacing fragments
                 Fragment fragment = getHomeFragment();
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
@@ -128,40 +123,28 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             }
         };
 
-        // If mPendingRunnable is not null, then add to the message queue
         if (mPendingRunnable != null) {
             mHandler.post(mPendingRunnable);
         }
-
-        // show or hide the fab button
         toggleFab();
-
-        //Closing drawer on item click
         drawer.closeDrawers();
-
-        // refresh toolbar menu
         invalidateOptionsMenu();
     }
     private Fragment getHomeFragment() {
         switch (navItemIndex) {
             case 0:
-                // home
                 HomeFragment homeFragment = new HomeFragment();
                 return homeFragment;
             case 1:
-                // photos
                 AddTripFragment addTripFragment = new AddTripFragment();
                 return addTripFragment;
             case 2:
-                // movies fragment
                 MyTripsFragment myTripsFragment = new MyTripsFragment();
                 return myTripsFragment;
             case 3:
-                // notifications fragment
                 MyProfileFragment myProfileFragment = new MyProfileFragment();
                 return myProfileFragment;
             case 4:
-                // requests
                 RequestsFragment requestsFragment = new RequestsFragment();
                 return requestsFragment;
             default:

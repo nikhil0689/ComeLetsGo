@@ -8,7 +8,7 @@ import java.util.Map;
  */
 
 public class MyRideDetailsPOJO {
-    private String posterName,posterContact,source,destination,date,time,requestorName;
+    private String posterName,posterContact,source,destination,date,time,requestorName,uid;
     private boolean rideStatus,approvalStatus=false;
     private Map<String,String> joinee = new HashMap();
 
@@ -18,6 +18,14 @@ public class MyRideDetailsPOJO {
 
     public void setJoinee(Map<String, String> joinee) {
         this.joinee = joinee;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public boolean isApprovalStatus() {

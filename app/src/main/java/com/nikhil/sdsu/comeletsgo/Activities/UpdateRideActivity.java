@@ -5,6 +5,7 @@ import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -19,16 +21,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-public class UpdateRideActivity extends AppCompatActivity {
+public class UpdateRideActivity extends AppCompatActivity implements ComeLetsGoConstants{
     private EditText source,destination,seats;
     private TextView date,time;
     private Button datePicker,timePicker,back,update;
@@ -53,17 +59,17 @@ public class UpdateRideActivity extends AppCompatActivity {
         timePicker = findViewById(R.id.update_trip_time_button);
         back = findViewById(R.id.update_trip_back_button);
         update = findViewById(R.id.update_trip_submit);
-        contact = auth.getCurrentUser().getDisplayName().toString();
-        Date currentDate = Calendar.getInstance().getTime();
-
+        if(auth.getCurrentUser()!=null){
+            contact = auth.getCurrentUser().getDisplayName();
+        }
         selectDate();
         selectTime();
         ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                //if(dataSnapshot.getChildrenCount()>0){
-                    AddTripDetailsPOJO addTripDetailsPOJO = dataSnapshot.getValue(AddTripDetailsPOJO.class);
+                AddTripDetailsPOJO addTripDetailsPOJO = dataSnapshot.getValue(AddTripDetailsPOJO.class);
+                if(addTripDetailsPOJO != null){
                     name=addTripDetailsPOJO.getPostedBy();
                     car=addTripDetailsPOJO.getCar();
                     color=addTripDetailsPOJO.getCarColor();
@@ -74,8 +80,7 @@ public class UpdateRideActivity extends AppCompatActivity {
                     time.setText(addTripDetailsPOJO.getTime());
                     seats.setText(String.valueOf(addTripDetailsPOJO.getSeatsAvailable()));
                     uid=addTripDetailsPOJO.getUid();
-                //}
-
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -90,30 +95,31 @@ public class UpdateRideActivity extends AppCompatActivity {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddTripDetailsPOJO addTripDetailsPOJO = new AddTripDetailsPOJO();
-                addTripDetailsPOJO.setPostedBy(name);
-                addTripDetailsPOJO.setCar(car);
-                addTripDetailsPOJO.setCarColor(color);
-                addTripDetailsPOJO.setLicense(license);
-                addTripDetailsPOJO.setSource(source.getText().toString());
-                addTripDetailsPOJO.setDestination(destination.getText().toString());
-                addTripDetailsPOJO.setDate(date.getText().toString());
-                addTripDetailsPOJO.setTime(time.getText().toString());
-                addTripDetailsPOJO.setContact(contact);
-                addTripDetailsPOJO.setUid(uid);
-                addTripDetailsPOJO.setSeatsAvailable(Integer.parseInt(seats.getText().toString()));
-                try{
-                    mDatabase.child("trip_details").child(contact).setValue(addTripDetailsPOJO);
-                    Log.d("rew","Data updated successfully");
-                    finish();
-                }catch(Exception e){
-                    Log.d("rew","Exception: "+e);
+                if(validInput()){
+                    AddTripDetailsPOJO addTripDetailsPOJO = new AddTripDetailsPOJO();
+                    addTripDetailsPOJO.setPostedBy(name);
+                    addTripDetailsPOJO.setCar(car);
+                    addTripDetailsPOJO.setCarColor(color);
+                    addTripDetailsPOJO.setLicense(license);
+                    addTripDetailsPOJO.setSource(source.getText().toString());
+                    addTripDetailsPOJO.setDestination(destination.getText().toString());
+                    addTripDetailsPOJO.setDate(date.getText().toString());
+                    addTripDetailsPOJO.setTime(time.getText().toString());
+                    addTripDetailsPOJO.setContact(contact);
+                    addTripDetailsPOJO.setUid(uid);
+                    addTripDetailsPOJO.setSeatsAvailable(Integer.parseInt(seats.getText().toString()));
+                    try{
+                        mDatabase.child(FIREBASE_TRIP_DETAILS).child(contact).setValue(addTripDetailsPOJO);
+                        Log.d("rew","Data updated successfully");
+                        finish();
+                    }catch(Exception e){
+                        Log.d("rew","Exception: "+e);
+                    }
+                }else{
+                    Toast.makeText(UpdateRideActivity.this,ENTER_REQUIRED_FIELDS,Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
-
-
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,6 +127,54 @@ public class UpdateRideActivity extends AppCompatActivity {
             }
         });
     }
+
+    private boolean validInput() {
+        boolean dataValid = true;
+        if (TextUtils.isEmpty(source.getText().toString())) {
+            source.setError(ENTER_SOURCE);
+            dataValid = false;
+        }
+        if (TextUtils.isEmpty(destination.getText().toString())) {
+            destination.setError(ENTER_DESTINATION);
+            dataValid = false;
+        }
+        if (TextUtils.isEmpty(date.getText().toString())) {
+            date.setError(ENTER_DATE);
+            dataValid = false;
+        }
+        if (TextUtils.isEmpty(time.getText().toString())) {
+            time.setError(ENTER_TIME);
+            dataValid = false;
+        }
+        if (TextUtils.isEmpty(seats.getText().toString())) {
+            seats.setError(ENTER_SEATS);
+            dataValid = false;
+        }
+        if (Integer.parseInt(seats.getText().toString())<1) {
+            seats.setError(SEATS_ZERO);
+            dataValid = false;
+        }
+        String dateString=date.getText().toString().concat(" ").concat(time.getText().toString());
+        DateFormat formatter ;
+        Date date ;
+        formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
+        try {
+            date = (Date) formatter.parse(dateString);
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(date);
+            Log.d("rew", "formatted time: " + date);
+            Log.d("rew", "current time: " + Calendar.getInstance().getTime());
+            if(date.before(Calendar.getInstance().getTime())){
+                dataValid = false;
+            }
+        }catch (Exception e){
+            Log.d("rew","Exception: "+e);
+        }
+        return dataValid;
+    }
+
+
+
     private void selectTime() {
         timePicker.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,7 +187,8 @@ public class UpdateRideActivity extends AppCompatActivity {
                             @Override
                             public void onTimeSet(TimePicker view, int hourOfDay,
                                                   int minute) {
-                                time.setText(hourOfDay + ":" + minute);
+                                String formatTime = hourOfDay + ":" + minute;
+                                time.setText(formatTime);
                             }
                         }, mHour, mMinute, false);
                 timePickerDialog.show();
@@ -154,7 +209,8 @@ public class UpdateRideActivity extends AppCompatActivity {
                             @Override
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
-                                date.setText((monthOfYear + 1) + "/" + dayOfMonth + "/" + year);
+                                String formatDate = (monthOfYear + 1) + "/" + dayOfMonth + "/" + year;
+                                date.setText(formatDate);
                             }
                         }, mYear, mMonth, mDay);
                 datePickerDialog.show();

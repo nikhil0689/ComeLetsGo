@@ -3,155 +3,163 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/scrollView"
+    android:background="@color/grey"
     android:scrollbars="horizontal">
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/activity_user_main"
+    <RelativeLayout
+        android:layout_margin="15dp"
+        android:padding="15dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="10dp"
-        android:fitsSystemWindows="true"
-        tools:context="com.nikhil.sdsu.comeletsgo.Fragments.UpdateProfileFragment">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Update your Profile"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:textSize="15sp" />
-        <LinearLayout
+        android:background="#ffffff">
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/activity_user_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity=""
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Email ID"
-                android:textSize="15sp" />
-            <TextView
-                android:id="@+id/update_profile_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                android:padding="10dp"
-                android:text="Email ID"
-                android:textSize="15sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Contact"
-                android:textSize="15sp" />
-            <TextView
-                android:id="@+id/update_profile_contact"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                android:padding="10dp"
-                android:text="Contact"
-                android:textSize="15sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Name"
-                android:textSize="15sp" />
-            <EditText
-                android:id="@+id/update_profile_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                android:padding="10dp"
-                android:hint="Name"
-                android:textSize="15sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Car"
-                android:textSize="15sp" />
-            <EditText
-                android:id="@+id/update_profile_car"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:inputType="textCapWords"
-                android:hint="Car"
-                android:textSize="15sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Car Color"
-                android:textSize="15sp" />
-            <EditText
-                android:id="@+id/update_profile_car_color"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:inputType="textCapWords"
-                android:hint="Color"
-                android:textSize="15sp" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Car Registration"
-                android:textSize="15sp" />
-            <EditText
-                android:id="@+id/update_profile_license"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:hint="Registration No."
-                android:textSize="15sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
+            android:orientation="vertical"
             android:gravity="center"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/update_profile_update"
+            android:padding="10dp"
+            android:fitsSystemWindows="true"
+            tools:context="com.nikhil.sdsu.comeletsgo.Fragments.UpdateProfileFragment">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/update_your_profile"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:textSize="15sp" />
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Update"
-                tools:ignore="ButtonStyle" />
+                android:gravity=""
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/email_id"
+                    android:textSize="15sp" />
+                <TextView
+                    android:id="@+id/update_profile_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/email_id"
+                    android:textSize="15sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/contact"
+                    android:textSize="15sp" />
+                <TextView
+                    android:id="@+id/update_profile_contact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/contact"
+                    android:textSize="15sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/name"
+                    android:textSize="15sp" />
+                <EditText
+                    android:id="@+id/update_profile_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords"
+                    android:padding="10dp"
+                    android:hint="@string/name"
+                    android:textSize="15sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/car"
+                    android:textSize="15sp" />
+                <EditText
+                    android:id="@+id/update_profile_car"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:inputType="textCapWords"
+                    android:hint="@string/car"
+                    android:textSize="15sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/car_color"
+                    android:textSize="15sp" />
+                <EditText
+                    android:id="@+id/update_profile_car_color"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:inputType="textCapWords"
+                    android:hint="@string/color"
+                    android:textSize="15sp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="@string/registration_no"
+                    android:textSize="15sp" />
+                <EditText
+                    android:id="@+id/update_profile_license"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:hint="@string/registration_no"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/update_profile_update"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:text="@string/update"
+                    tools:ignore="ButtonStyle" />
+
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
 </ScrollView>

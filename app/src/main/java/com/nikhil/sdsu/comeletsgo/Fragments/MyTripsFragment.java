@@ -1,6 +1,7 @@
 package com.nikhil.sdsu.comeletsgo.Fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -10,7 +11,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -18,8 +22,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Activities.RideHistoryDetailsActivity;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Helpers.MyRidesListAdapter;
 import com.nikhil.sdsu.comeletsgo.Helpers.RequestsAdapter;
+import com.nikhil.sdsu.comeletsgo.Helpers.Utilities;
 import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.RequestDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
@@ -38,7 +45,7 @@ import java.util.Map;
  * Use the {@link MyTripsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MyTripsFragment extends Fragment {
+public class MyTripsFragment extends Fragment implements ComeLetsGoConstants {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -51,6 +58,7 @@ public class MyTripsFragment extends Fragment {
     private String mParam2;
     private ListView myRidesListView;
     MyRidesListAdapter listadapter;
+    private String myPhoneNo="";
     private OnFragmentInteractionListener mListener;
 
     public MyTripsFragment() {
@@ -90,10 +98,29 @@ public class MyTripsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view =  inflater.inflate(R.layout.fragment_my_trips, container, false);
         auth = FirebaseAuth.getInstance();
+        Utilities utilities = new Utilities(getFragmentManager());
+        utilities.checkProfile();
         myRidesListView = view.findViewById(R.id.my_rides_list_view);
-        String phNo = auth.getCurrentUser().getDisplayName().toString();
-        checkForMyProfile(phNo);
-        uids = getAllUidsFromCurrentRides(phNo);
+        if(auth.getCurrentUser()!=null){
+            myPhoneNo = auth.getCurrentUser().getDisplayName();
+        }
+
+        uids = getAllUidsFromCurrentRides(myPhoneNo);
+        myRidesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                MyRideDetailsPOJO rideUid = (MyRideDetailsPOJO) adapterView.getItemAtPosition(i);
+                Log.d("rew","approval status: "+rideUid.isApprovalStatus());
+                if(rideUid.isApprovalStatus()){
+                    Intent intent = new Intent(getActivity(),RideHistoryDetailsActivity.class);
+                    intent.putExtra(UID,rideUid.getUid());
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(getContext(),RIDE_SCHEDULED,Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
 
         return view;
     }
@@ -102,8 +129,7 @@ public class MyTripsFragment extends Fragment {
         ValueEventListener valueEventListener1 = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                myRideDetailsList.clear();
-                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
+                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " uids");
                 for(DataSnapshot snapshot : dataSnapshot.getChildren()){
                     Log.d("rew","snapshot uid value: "+snapshot.getValue());
                     uids.add(snapshot.getValue().toString());
@@ -118,14 +144,14 @@ public class MyTripsFragment extends Fragment {
                                 Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
                                 if (dataSnapshot.getChildrenCount() > 0) {
                                     MyRideDetailsPOJO myRideDetailsPOJO = dataSnapshot.getValue(MyRideDetailsPOJO.class);
-                                    Log.d("rew", "joinee map size: " + myRideDetailsPOJO.getJoinee().size());
-                                    int mapSize = myRideDetailsPOJO.getJoinee().size();
-                                    Log.d("rew", "joinee map key value: " + myRideDetailsPOJO.getJoinee().values());
                                     myRideDetailsList.add(myRideDetailsPOJO);
                                     Collections.reverse(myRideDetailsList);
                                     if(getActivity() != null){
                                         listadapter = new MyRidesListAdapter(getActivity(), 0, myRideDetailsList);
                                         myRidesListView.setAdapter(listadapter);
+                                    }
+                                    if (listadapter != null) {
+                                        listadapter.notifyDataSetChanged();
                                     }
                                 }else {
                                     if (listadapter != null) {
@@ -133,8 +159,6 @@ public class MyTripsFragment extends Fragment {
                                     }
                                     Log.d("rew","No Data yet");
                                 }
-
-
                             }
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
@@ -142,11 +166,13 @@ public class MyTripsFragment extends Fragment {
                             }
                         };
                         FirebaseDatabase database = FirebaseDatabase.getInstance();
-                        DatabaseReference people = database.getReference("my_rides").child(uids.get(i));
+                        DatabaseReference people = database.getReference(FIREBASE_MY_RIDES).child(uids.get(i));
                         people.addValueEventListener(valueEventListener);
                     }
 
+
                 }
+
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -154,7 +180,7 @@ public class MyTripsFragment extends Fragment {
             }
         };
         FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("current_rides").child(phNo);
+        DatabaseReference people1 = database1.getReference(FIREBASE_CURRENT_RIDES).child(phNo);
         people1.addValueEventListener(valueEventListener1);
         return uids;
     }
@@ -164,28 +190,6 @@ public class MyTripsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
     }
-    private void checkForMyProfile(String phNo) {
-        ValueEventListener valueEventListener1 = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("rew", "There are " + dataSnapshot.getChildrenCount() + " people");
-                if(dataSnapshot.getChildrenCount()<1){
-                    Fragment updateProfileFragment = new UpdateProfileFragment();
-                    FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.screen_area,updateProfileFragment);
-                    fragmentTransaction.commitAllowingStateLoss();
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        };
-        FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("personal_data").child(phNo);
-        people1.addValueEventListener(valueEventListener1);
-    }
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {

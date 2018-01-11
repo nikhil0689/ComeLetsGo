@@ -21,7 +21,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Helpers.RequestsAdapter;
+import com.nikhil.sdsu.comeletsgo.Helpers.Utilities;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.RequestDetailsPOJO;
@@ -41,7 +43,7 @@ import java.util.Map;
  * Use the {@link RequestsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RequestsFragment extends Fragment {
+public class RequestsFragment extends Fragment implements ComeLetsGoConstants{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -50,7 +52,7 @@ public class RequestsFragment extends Fragment {
     private FirebaseAuth auth;
     private DatabaseReference mDatabase;
     private String uid = "";
-    private String authContact;
+    private String myPhoneNo;
     RequestsAdapter listadapter;
     List<RequestDetailsPOJO> requestList = new ArrayList<>();
     // TODO: Rename and change types of parameters
@@ -97,7 +99,11 @@ public class RequestsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_requests, container, false);
         auth = FirebaseAuth.getInstance();
-        final String phNo = auth.getCurrentUser().getDisplayName().toString();
+        Utilities utilities = new Utilities(getFragmentManager());
+        utilities.checkProfile();
+        if(auth.getCurrentUser()!=null){
+            myPhoneNo = auth.getCurrentUser().getDisplayName();
+        }
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Log.d("rew","in oncreate view");
         requestsListView = view.findViewById(R.id.requests_list_view);
@@ -137,32 +143,32 @@ public class RequestsFragment extends Fragment {
                         final String requestorContact = ((RequestDetailsPOJO) adapterView.getItemAtPosition(i)).getRequestorContact();
                         if(!requestDetailsPOJO.isApprovalStatus() && seatsAvailable > 0){
                             AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-                            alert.setTitle("Add Passenger");
-                            alert.setMessage("Accept");
-                            alert.setPositiveButton("ADD", new DialogInterface.OnClickListener() {
+                            alert.setTitle(PASSENGER_REQUEST);
+                            alert.setMessage(ACCEPT_REQUEST);
+                            alert.setPositiveButton(ADD, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     requestDetailsPOJO.setApprovalStatus(true);
-                                    mDatabase.child("requests")
+                                    mDatabase.child(FIREBASE_REQUESTS)
                                             .child(auth.getCurrentUser()
                                                     .getDisplayName())
                                             .child(requestorContact).setValue(requestDetailsPOJO);
                                     seatsAvailable = seatsAvailable-1;
                                     Map map = new HashMap();
                                     map.put(requestorContact,requestDetailsPOJO.getRequestorName());
-                                    mDatabase.child("my_rides").child(uid).getRef().child("joinee").updateChildren(map);
-                                    mDatabase.child("trip_details")
-                                            .child(phNo).child("seatsAvailable").setValue(seatsAvailable);
+                                    mDatabase.child(FIREBASE_MY_RIDES).child(uid).getRef().child(JOINEE_CHILD_ELEMENT).updateChildren(map);
+                                    mDatabase.child(FIREBASE_TRIP_DETAILS)
+                                            .child(phNo).child(SEATS_AVAILABLE_CHILD_ELEMENT).setValue(seatsAvailable);
                                     Map map2 = new HashMap();
-                                    String key = mDatabase.child("current_rides").child(requestorContact).push().getKey();
+                                    String key = mDatabase.child(FIREBASE_CURRENT_RIDES).child(requestorContact).push().getKey();
                                     map2.put(key,uid);
-                                    mDatabase.child("current_rides").child(requestorContact).updateChildren(map2);
+                                    mDatabase.child(FIREBASE_CURRENT_RIDES).child(requestorContact).updateChildren(map2);
                                     listadapter.notifyDataSetChanged();
                                     dialog.dismiss();
                                 }
                             });
 
-                            alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            alert.setNegativeButton(CANCEL, new DialogInterface.OnClickListener() {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -174,26 +180,26 @@ public class RequestsFragment extends Fragment {
                             return true;
                         }else if(requestDetailsPOJO.isApprovalStatus()){
                             AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-                            alert.setTitle("Remove Passenger");
-                            alert.setMessage("Are you sure?");
-                            alert.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
+                            alert.setTitle(REMOVE_PASSENGER);
+                            alert.setMessage(REMOVAL_CONFIRMATION);
+                            alert.setPositiveButton(REMOVE, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     requestDetailsPOJO.setApprovalStatus(false);
-                                    mDatabase.child("requests")
+                                    mDatabase.child(FIREBASE_REQUESTS)
                                             .child(auth.getCurrentUser()
                                                     .getDisplayName())
                                             .child(requestorContact).setValue(requestDetailsPOJO);
                                     seatsAvailable = seatsAvailable+1;
-                                    mDatabase.child("trip_details")
-                                            .child(phNo).child("seatsAvailable").setValue(seatsAvailable);
-                                    mDatabase.child("my_rides").child(uid).child("joinee").child(requestorContact).removeValue();
+                                    mDatabase.child(FIREBASE_TRIP_DETAILS)
+                                            .child(phNo).child(SEATS_AVAILABLE_CHILD_ELEMENT).setValue(seatsAvailable);
+                                    mDatabase.child(FIREBASE_MY_RIDES).child(uid).child(JOINEE_CHILD_ELEMENT).child(requestorContact).removeValue();
                                     listadapter.notifyDataSetChanged();
                                     dialog.dismiss();
                                 }
                             });
 
-                            alert.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                            alert.setNegativeButton(CANCEL, new DialogInterface.OnClickListener() {
 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -216,12 +222,11 @@ public class RequestsFragment extends Fragment {
             }
         };
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference people = database.getReference("requests").child(auth.getCurrentUser().getDisplayName().toString());
+        DatabaseReference people = database.getReference(FIREBASE_REQUESTS).child(myPhoneNo);
         people.addValueEventListener(valueEventListener);
     }
 
     private void checkNumberOfSeats() {
-        final String phNo = auth.getCurrentUser().getDisplayName().toString();
         ValueEventListener valueEventListener1 = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -236,9 +241,9 @@ public class RequestsFragment extends Fragment {
                     time = addTripDetailsPOJO.getTime();
                     seatsAvailable = addTripDetailsPOJO.getSeatsAvailable();
                     uid = addTripDetailsPOJO.getUid();
-                    getRequestData(phNo);
+                    getRequestData(myPhoneNo);
                     if(getContext()!=null){
-                        Toast.makeText(getContext(),"Seats Available: "+seatsAvailable,Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(),SEATS_AVAILABLE+seatsAvailable,Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -248,7 +253,7 @@ public class RequestsFragment extends Fragment {
             }
         };
         FirebaseDatabase database1 = FirebaseDatabase.getInstance();
-        DatabaseReference people1 = database1.getReference("trip_details").child(phNo);
+        DatabaseReference people1 = database1.getReference(FIREBASE_TRIP_DETAILS).child(myPhoneNo);
         people1.addValueEventListener(valueEventListener1);
     }
 

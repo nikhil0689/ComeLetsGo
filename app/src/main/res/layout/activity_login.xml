@@ -22,7 +22,7 @@
             android:drawablePadding="16dp"
             android:gravity="center"
             android:padding="20dp"
-            android:text="Sign In"
+            android:text="@string/sign_in"
             android:textSize="25sp" />
 
         <EditText
@@ -36,7 +36,7 @@
             android:layout_marginTop="8dp"
             android:background="#f0f0f4"
             android:drawablePadding="16dp"
-            android:hint="Email ID"
+            android:hint="@string/email_id"
             android:inputType="textEmailAddress"
             android:padding="12dp"
             android:textColor="#000" />
@@ -52,7 +52,7 @@
             android:layout_marginTop="8dp"
             android:background="#f0f0f4"
             android:drawablePadding="16dp"
-            android:hint="Password"
+            android:hint="@string/password"
             android:inputType="textPassword"
             android:padding="12dp"
             android:textColor="#000" />
@@ -67,7 +67,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:padding="14dp"
-            android:text="Login"
+            android:text="@string/login"
             android:textAlignment="center"
             android:textSize="16sp" />
 
@@ -81,7 +81,7 @@
             android:layout_marginRight="16dp"
             android:layout_marginTop="16dp"
             android:padding="14dp"
-            android:text="Sign UP"
+            android:text="@string/sign_up"
             android:textSize="16sp" />
 
 

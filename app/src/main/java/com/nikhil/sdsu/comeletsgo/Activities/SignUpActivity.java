@@ -17,17 +17,18 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.R;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity implements ComeLetsGoConstants {
     private EditText contact,emailId,password;
-    private Button submit,reset;
     private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
+        Button submit,reset;
         contact = findViewById(R.id.sign_up_contact);
         emailId = findViewById(R.id.sign_up_email);
         password = findViewById(R.id.signup_password);
@@ -48,8 +49,8 @@ public class SignUpActivity extends AppCompatActivity {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (!task.isSuccessful()) {
                                         Log.d("rew","Exception: "+task.getException());
-                                        Toast.makeText(SignUpActivity.this, "Registration failed", Toast.LENGTH_SHORT).show();
-                                        emailId.setError("Invalid Email ID");
+                                        Toast.makeText(SignUpActivity.this, ComeLetsGoConstants.REGISTRATION_FAILED, Toast.LENGTH_SHORT).show();
+                                        emailId.setError(ComeLetsGoConstants.INVALID_EMAIL);
                                     } else {
                                         FirebaseUser user = auth.getCurrentUser();
 
@@ -57,19 +58,22 @@ public class SignUpActivity extends AppCompatActivity {
                                                 .setDisplayName(phno)
                                                 .build();
                                         try {
-                                            user.updateProfile(profileUpdates)
-                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                        @Override
-                                                        public void onComplete(@NonNull Task<Void> task) {
-                                                            if (task.isSuccessful()) {
-                                                                Log.d("rew", "User profile updated.");
-                                                                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-                                                                finish();
-                                                            }else{
-                                                                Log.d("rew","user profile update failed");
+                                            if(user != null){
+                                                user.updateProfile(profileUpdates)
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task) {
+                                                                if (task.isSuccessful()) {
+                                                                    Log.d("rew", "User profile updated.");
+                                                                    startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+                                                                    finish();
+                                                                }else{
+                                                                    Log.d("rew","user profile update failed");
+                                                                }
                                                             }
-                                                        }
-                                                    });
+                                                        });
+                                            }
+
                                         } catch (Exception e) {
                                             Log.d("rew", "failed: "+e);
                                         }
@@ -77,16 +81,16 @@ public class SignUpActivity extends AppCompatActivity {
                                 }
                             });
                 }else{
-                    Toast.makeText(getApplicationContext(), "Enter data",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), ComeLetsGoConstants.ENTER_REQUIRED_FIELDS,Toast.LENGTH_SHORT).show();
                 }
             }
         });
         reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                emailId.setText("");
-                password.setText("");
-                contact.setText("");
+                emailId.setText(ComeLetsGoConstants.EMPTY_STRING);
+                password.setText(ComeLetsGoConstants.EMPTY_STRING);
+                contact.setText(ComeLetsGoConstants.EMPTY_STRING);
             }
         });
     }
@@ -94,17 +98,17 @@ public class SignUpActivity extends AppCompatActivity {
     private boolean validInput() {
         boolean dataValid = true;
         if (TextUtils.isEmpty(emailId.getText().toString())) {
-            emailId.setError("Enter Email ID");
+            emailId.setError(ComeLetsGoConstants.ENTER_EMAIL);
             dataValid = false;
         }
         if (TextUtils.isEmpty(password.getText().toString())) {
-            password.setError("Enter Password");
+            password.setError(ComeLetsGoConstants.ENTER_PASSWORD);
             dataValid = false;
         }
 
         if (password.getText().toString().length() < 6) {
-            password.setError("Invalid Password");
-            Toast.makeText(getApplicationContext(), "Min 6 Characters",
+            password.setError(ComeLetsGoConstants.PASSWORD_LENGTH);
+            Toast.makeText(getApplicationContext(), ComeLetsGoConstants.PASSWORD_LENGTH,
                     Toast.LENGTH_SHORT).show();
             dataValid = false;
         }

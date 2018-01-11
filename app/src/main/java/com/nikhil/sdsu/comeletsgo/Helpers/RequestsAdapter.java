@@ -19,7 +19,7 @@ import java.util.List;
  * Created by nikhilc on 12/28/2017.
  */
 
-public class RequestsAdapter extends ArrayAdapter {
+public class RequestsAdapter extends ArrayAdapter implements ComeLetsGoConstants{
     private Activity context;
     private List<RequestDetailsPOJO> userProperties;
     public RequestsAdapter(Activity context, int resource, List list) {
@@ -36,12 +36,12 @@ public class RequestsAdapter extends ArrayAdapter {
         TextView requestorName = view.findViewById(R.id.request_list_requestor_name);
         TextView requestorContact = view.findViewById(R.id.request_list_requestor_contact);
         TextView status = view.findViewById(R.id.request_list_approval);
-        requestorName.setText(""+userProperties.get(position).getRequestorName());
-        requestorContact.setText(""+userProperties.get(position).getRequestorContact());
+        requestorName.setText(userProperties.get(position).getRequestorName());
+        requestorContact.setText(userProperties.get(position).getRequestorContact());
         if(userProperties.get(position).isApprovalStatus()){
-            status.setText("Approved");
+            status.setText(REQUEST_STATUS_APPROVED);
         }else{
-            status.setText("Waiting");
+            status.setText(REQUEST_STATUS_WAITING);
         }
 
         return view;

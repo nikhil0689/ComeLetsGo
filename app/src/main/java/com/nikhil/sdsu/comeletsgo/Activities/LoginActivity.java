@@ -15,19 +15,20 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.R;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements ComeLetsGoConstants {
     private EditText emailId;
     private EditText password;
-    private Button signIn;
-    private Button signUp;
     private FirebaseAuth firebaseAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        Button signIn;
+        Button signUp;
         emailId =  findViewById(R.id.login_email);
         password = findViewById(R.id.login_password);
         signIn = findViewById(R.id.login_submit);
@@ -42,7 +43,6 @@ public class LoginActivity extends AppCompatActivity {
         });
         firebaseAuth = FirebaseAuth.getInstance();
         if(firebaseAuth.getCurrentUser() != null){
-            Log.d("rew","User name: "+firebaseAuth.getCurrentUser().getEmail().toString());
             startActivity(new Intent(LoginActivity.this, MainActivity.class));
             finish();
         }
@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_LONG).show();
+                            Toast.makeText(LoginActivity.this, ComeLetsGoConstants.INVALID_EMAIL_PW_TOAST, Toast.LENGTH_LONG).show();
                         } else {
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             startActivity(intent);
@@ -77,16 +77,16 @@ public class LoginActivity extends AppCompatActivity {
     private boolean validInput() {
         boolean valid = true;
         if(TextUtils.isEmpty(emailId.getText().toString())){
-            emailId.setError("Enter Email");
+            emailId.setError(ComeLetsGoConstants.ENTER_EMAIL);
             valid = false;
         }
         if (TextUtils.isEmpty(password.getText().toString())) {
-            password.setError("Enter Password");
+            password.setError(ComeLetsGoConstants.ENTER_PASSWORD);
             valid = false;
         }
 
         if (password.getText().toString().length() < 6) {
-            password.setError("Password length is less than 6");
+            password.setError(ComeLetsGoConstants.PASSWORD_LENGTH);
             valid = false;
         }
         return valid;

@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +26,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.nikhil.sdsu.comeletsgo.Activities.UpdateRideActivity;
 import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Helpers.Utilities;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
@@ -241,7 +239,7 @@ public class AddTripFragment extends Fragment implements ComeLetsGoConstants {
         Date date ;
         formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
         try {
-            date = (Date) formatter.parse(dateString);
+            date = formatter.parse(dateString);
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             Log.d("rew", "formatted time: " + date);

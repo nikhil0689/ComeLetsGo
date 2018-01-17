@@ -12,8 +12,6 @@ import android.widget.TextView;
 import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 /**

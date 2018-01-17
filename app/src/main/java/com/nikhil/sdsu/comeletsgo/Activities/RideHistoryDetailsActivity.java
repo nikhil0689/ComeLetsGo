@@ -14,11 +14,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
-import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RideHistoryDetailsActivity extends AppCompatActivity implements ComeLetsGoConstants{
     private TextView source,destination,date,time,joinees,poster,posterContact,status;

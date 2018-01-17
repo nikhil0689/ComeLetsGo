@@ -2,7 +2,6 @@ package com.nikhil.sdsu.comeletsgo.Activities;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -23,15 +22,12 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
-import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class UpdateRideActivity extends AppCompatActivity implements ComeLetsGoConstants{
@@ -159,7 +155,7 @@ public class UpdateRideActivity extends AppCompatActivity implements ComeLetsGoC
         Date date ;
         formatter = new SimpleDateFormat(DATE_TIME_FORMAT, Locale.ENGLISH);
         try {
-            date = (Date) formatter.parse(dateString);
+            date = formatter.parse(dateString);
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
             Log.d("rew", "formatted time: " + date);

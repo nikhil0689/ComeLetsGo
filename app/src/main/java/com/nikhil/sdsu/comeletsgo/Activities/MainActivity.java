@@ -21,6 +21,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.nikhil.sdsu.comeletsgo.Fragments.AddTripFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.HomeFragment;
 import com.nikhil.sdsu.comeletsgo.Fragments.MyProfileFragment;
@@ -32,7 +34,9 @@ import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener,
         AddTripFragment.OnFragmentInteractionListener,MyTripsFragment.OnFragmentInteractionListener,
@@ -68,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements HomeFragment.OnFr
             email = auth.getCurrentUser().getEmail();
             contact = auth.getCurrentUser().getDisplayName();
         }
-
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mHandler = new Handler();

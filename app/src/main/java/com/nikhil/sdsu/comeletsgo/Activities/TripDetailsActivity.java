@@ -2,7 +2,6 @@ package com.nikhil.sdsu.comeletsgo.Activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,27 +20,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.nikhil.sdsu.comeletsgo.Helpers.ComeLetsGoConstants;
-import com.nikhil.sdsu.comeletsgo.Helpers.RequestsAdapter;
 import com.nikhil.sdsu.comeletsgo.Pojo.AddTripDetailsPOJO;
-import com.nikhil.sdsu.comeletsgo.Pojo.MyRideDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.RequestDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.Pojo.SignUpDetailsPOJO;
 import com.nikhil.sdsu.comeletsgo.R;
 
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class TripDetailsActivity extends AppCompatActivity implements ComeLetsGoConstants{
@@ -204,7 +194,7 @@ public class TripDetailsActivity extends AppCompatActivity implements ComeLetsGo
             Date date ;
             formatter = new SimpleDateFormat(DATE_TIME_FORMAT,Locale.ENGLISH);
             try {
-                date = (Date)formatter.parse(dateString);
+                date = formatter.parse(dateString);
                 Calendar cal=Calendar.getInstance();
                 cal.setTime(date);
                 Log.d("rew","formatted time: "+date);
@@ -251,6 +241,22 @@ public class TripDetailsActivity extends AppCompatActivity implements ComeLetsGo
             complete.setVisibility(View.GONE);
             update.setVisibility(View.INVISIBLE);
             delete.setVisibility(View.INVISIBLE);
+            String dateString=addTripDetails.getDate().concat(" ").concat(addTripDetails.getTime());
+            DateFormat formatter ;
+            Date date ;
+            formatter = new SimpleDateFormat(DATE_TIME_FORMAT,Locale.ENGLISH);
+            try {
+                date = formatter.parse(dateString);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                Log.d("rew", "formatted time: " + date);
+                Log.d("rew", "current time: " + Calendar.getInstance().getTime());
+                if (Calendar.getInstance().getTime().after(date)) {
+                    join.setEnabled(false);
+                }
+            }catch(Exception e){
+
+            }
             ValueEventListener valueEventListener1 = new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -309,14 +315,14 @@ public class TripDetailsActivity extends AppCompatActivity implements ComeLetsGo
                             requestorContact = requestDetailsPOJO.getRequestorContact();
                             Log.d("rew","Approved for: "+requestorContact);
                             TextView passengers = new TextView(TripDetailsActivity.this);
-                            passengers.setText(requestDetailsPOJO.getRequestorName().concat(EMPTY_STRING+JOINED));
+                            passengers.setText(requestDetailsPOJO.getRequestorName().concat(" "+JOINED));
                             joineeList.add(requestDetailsPOJO.getRequestorContact());
                             passengers.setGravity(Gravity.CENTER);
                             passengers.setTypeface(Typeface.DEFAULT_BOLD);
                             linearLayout.addView(passengers);
-                            if(phNo.equalsIgnoreCase(requestDetailsPOJO.getRequestorContact())){
-                                join.setEnabled(false);
-                            }
+                        }
+                        if(phNo.equalsIgnoreCase(requestDetailsPOJO.getRequestorContact())){
+                            join.setEnabled(false);
                         }
                         Log.d("rew", requestDetailsPOJO.getRequestorName());
                     }
